@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 
 export default function SupportScreen({ navigation }) {
   const faqs = [
@@ -20,19 +20,19 @@ export default function SupportScreen({ navigation }) {
 
         <View style={styles.actionsGrid}>
           <TouchableOpacity style={styles.actionCard} onPress={() => navigation.navigate('RaiseIssue', {})}>
-            <Text style={{ fontSize: 28 }}>🚨</Text>
+            <View style={[styles.actionIcon, { backgroundColor: COLORS.errorLight }]}><Text style={{ fontSize: 24 }}>🚨</Text></View>
             <Text style={styles.actionLabel}>Raise Issue</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard}>
-            <Text style={{ fontSize: 28 }}>💬</Text>
+            <View style={[styles.actionIcon, { backgroundColor: COLORS.primaryLight }]}><Text style={{ fontSize: 24 }}>💬</Text></View>
             <Text style={styles.actionLabel}>Live Chat</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard}>
-            <Text style={{ fontSize: 28 }}>📞</Text>
+            <View style={[styles.actionIcon, { backgroundColor: COLORS.successLight }]}><Text style={{ fontSize: 24 }}>📞</Text></View>
             <Text style={styles.actionLabel}>Call Us</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionCard}>
-            <Text style={{ fontSize: 28 }}>📧</Text>
+            <View style={[styles.actionIcon, { backgroundColor: COLORS.warningLight }]}><Text style={{ fontSize: 24 }}>📧</Text></View>
             <Text style={styles.actionLabel}>Email</Text>
           </TouchableOpacity>
         </View>
@@ -53,14 +53,15 @@ export default function SupportScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white },
+  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   title: { ...FONTS.h2, color: COLORS.text },
-  subtitle: { ...FONTS.bodySm, color: COLORS.gray, marginTop: 4 },
+  subtitle: { ...FONTS.bodySm, color: COLORS.textLight, marginTop: 4 },
   actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', padding: SIZES.lg, gap: 10 },
-  actionCard: { width: '47%', backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.lg, alignItems: 'center' },
-  actionLabel: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '600', marginTop: 8 },
+  actionCard: { width: '47%', backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.lg, alignItems: 'center', ...SHADOWS.small },
+  actionIcon: { width: 48, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginBottom: 8 },
+  actionLabel: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '600' },
   sectionTitle: { ...FONTS.h3, color: COLORS.text, marginHorizontal: SIZES.lg, marginTop: 10, marginBottom: 12 },
-  faqCard: { backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.lg, marginHorizontal: SIZES.lg, marginBottom: 10 },
+  faqCard: { backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.lg, marginHorizontal: SIZES.lg, marginBottom: 10, ...SHADOWS.small },
   faqQ: { ...FONTS.bodySm, fontWeight: '600', color: COLORS.text },
-  faqA: { ...FONTS.bodySm, color: COLORS.gray, marginTop: 8, lineHeight: 20 },
+  faqA: { ...FONTS.bodySm, color: COLORS.textLight, marginTop: 8, lineHeight: 20 },
 });

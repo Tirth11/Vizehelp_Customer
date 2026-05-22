@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 
 export default function BookingDetailScreen({ navigation, route }) {
   const { booking = {} } = route.params || {};
@@ -49,14 +49,18 @@ export default function BookingDetailScreen({ navigation, route }) {
           <Text style={styles.cardTitle}>Payment</Text>
           <View style={styles.infoRow}><Text style={styles.infoLabel}>Service Fee</Text><Text style={styles.infoValue}>$35.00</Text></View>
           <View style={styles.infoRow}><Text style={styles.infoLabel}>Platform Fee</Text><Text style={styles.infoValue}>$5.00</Text></View>
-          <View style={[styles.infoRow, { borderTopWidth: 1, borderTopColor: COLORS.lightGray, paddingTop: 10 }]}><Text style={[styles.infoLabel, { fontWeight: '600' }]}>Total</Text><Text style={[styles.infoValue, { color: COLORS.primary }]}>{booking.amount || '$40.00'}</Text></View>
+          <View style={[styles.infoRow, styles.totalRow]}><Text style={styles.totalLabel}>Total</Text><Text style={styles.totalValue}>{booking.amount || '$40.00'}</Text></View>
         </View>
 
         <View style={styles.actionsRow}>
           <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('RaiseIssue', { booking })}>
-            <Text style={styles.actionText}>🚨 Raise Issue</Text>
+            <Text style={styles.actionIcon}>🚨</Text>
+            <Text style={styles.actionText}>Raise Issue</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}><Text style={styles.actionText}>📄 Download Invoice</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.actionBtn}>
+            <Text style={styles.actionIcon}>📄</Text>
+            <Text style={styles.actionText}>Download Invoice</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={{ height: 40 }} />
@@ -67,28 +71,32 @@ export default function BookingDetailScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.lightGray },
+  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   back: { ...FONTS.body, color: COLORS.primary, marginBottom: 12 },
   title: { ...FONTS.h2, color: COLORS.text },
   content: { flex: 1, padding: SIZES.lg },
-  card: { backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.lg, marginBottom: 12 },
+  card: { backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.lg, marginBottom: 12, ...SHADOWS.small },
   serviceRow: { flexDirection: 'row', alignItems: 'center' },
-  iconCircle: { width: 50, height: 50, borderRadius: 25, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' },
+  iconCircle: { width: 50, height: 50, borderRadius: 14, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
   serviceName: { ...FONTS.h3, color: COLORS.text },
   amount: { ...FONTS.h3, color: COLORS.primary },
-  statusBadge: { backgroundColor: '#D1FAE5', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2, alignSelf: 'flex-start', marginTop: 4 },
-  cancelledBadge: { backgroundColor: '#FEE2E2' },
-  statusText: { ...FONTS.caption, color: COLORS.success },
+  statusBadge: { backgroundColor: COLORS.successLight, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2, alignSelf: 'flex-start', marginTop: 4 },
+  cancelledBadge: { backgroundColor: COLORS.errorLight },
+  statusText: { ...FONTS.caption, color: COLORS.success, fontWeight: '500' },
   cancelledText: { color: COLORS.error },
   cardTitle: { ...FONTS.h3, color: COLORS.text, marginBottom: 12 },
   infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  infoLabel: { ...FONTS.bodySm, color: COLORS.gray },
+  infoLabel: { ...FONTS.bodySm, color: COLORS.textLight },
   infoValue: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '500' },
+  totalRow: { borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 10, marginTop: 4 },
+  totalLabel: { ...FONTS.body, fontWeight: '600', color: COLORS.text },
+  totalValue: { ...FONTS.body, fontWeight: '700', color: COLORS.primary },
   buddyRow: { flexDirection: 'row', alignItems: 'center' },
-  avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' },
+  avatar: { width: 44, height: 44, borderRadius: 14, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
   buddyName: { ...FONTS.body, fontWeight: '600', color: COLORS.text },
-  buddyMeta: { ...FONTS.caption, color: COLORS.gray, marginTop: 2 },
+  buddyMeta: { ...FONTS.caption, color: COLORS.textLight, marginTop: 2 },
   actionsRow: { flexDirection: 'row', gap: 10 },
-  actionBtn: { flex: 1, backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: 14, alignItems: 'center' },
-  actionText: { ...FONTS.bodySm, color: COLORS.text },
+  actionBtn: { flex: 1, backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: 16, alignItems: 'center', ...SHADOWS.small },
+  actionIcon: { fontSize: 20 },
+  actionText: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '500', marginTop: 6 },
 });

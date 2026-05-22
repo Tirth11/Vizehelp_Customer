@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 
 export default function ProfileScreen({ navigation }) {
   const menuItems = [
@@ -36,7 +36,7 @@ export default function ProfileScreen({ navigation }) {
         <View style={styles.menu}>
           {menuItems.map((item, i) => (
             <TouchableOpacity key={i} style={styles.menuItem} onPress={() => item.screen && navigation.navigate(item.screen)}>
-              <Text style={{ fontSize: 18 }}>{item.icon}</Text>
+              <View style={styles.menuIcon}><Text style={{ fontSize: 18 }}>{item.icon}</Text></View>
               <Text style={styles.menuLabel}>{item.label}</Text>
               <Text style={styles.chevron}>›</Text>
             </TouchableOpacity>
@@ -44,7 +44,7 @@ export default function ProfileScreen({ navigation }) {
         </View>
 
         <TouchableOpacity style={styles.logoutBtn} onPress={() => navigation.navigate('Welcome')}>
-          <Text style={styles.logoutText}>🚪 Log Out</Text>
+          <Text style={styles.logoutText}>Log Out</Text>
         </TouchableOpacity>
 
         <Text style={styles.version}>Version 1.0.0</Text>
@@ -57,20 +57,21 @@ export default function ProfileScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   header: { backgroundColor: COLORS.white, alignItems: 'center', padding: SIZES.lg, paddingTop: 50 },
-  avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  avatar: { width: 80, height: 80, borderRadius: 24, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
   name: { ...FONTS.h2, color: COLORS.text },
-  phone: { ...FONTS.bodySm, color: COLORS.gray, marginTop: 4 },
-  email: { ...FONTS.bodySm, color: COLORS.gray, marginTop: 2 },
-  statsRow: { flexDirection: 'row', backgroundColor: COLORS.white, marginTop: 10, padding: SIZES.lg, justifyContent: 'space-around' },
+  phone: { ...FONTS.bodySm, color: COLORS.textLight, marginTop: 4 },
+  email: { ...FONTS.bodySm, color: COLORS.textLight, marginTop: 2 },
+  statsRow: { flexDirection: 'row', backgroundColor: COLORS.white, marginTop: 2, padding: SIZES.lg, justifyContent: 'space-around', ...SHADOWS.small },
   statItem: { alignItems: 'center' },
   statValue: { ...FONTS.h2, color: COLORS.primary },
-  statLabel: { ...FONTS.caption, color: COLORS.gray, marginTop: 4 },
-  statDivider: { width: 1, backgroundColor: COLORS.lightGray },
-  menu: { backgroundColor: COLORS.white, marginTop: 10, paddingHorizontal: SIZES.lg },
-  menuItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: COLORS.lightGray },
+  statLabel: { ...FONTS.caption, color: COLORS.textLight, marginTop: 4 },
+  statDivider: { width: 1, backgroundColor: COLORS.border },
+  menu: { backgroundColor: COLORS.white, marginTop: 12, borderRadius: SIZES.radiusLg, marginHorizontal: SIZES.md, ...SHADOWS.small, overflow: 'hidden' },
+  menuItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: SIZES.lg, borderBottomWidth: 1, borderBottomColor: COLORS.border },
+  menuIcon: { width: 36, height: 36, borderRadius: 10, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
   menuLabel: { ...FONTS.body, color: COLORS.text, flex: 1, marginLeft: 14 },
-  chevron: { fontSize: 20, color: COLORS.gray },
-  logoutBtn: { backgroundColor: COLORS.white, marginTop: 10, padding: SIZES.lg, alignItems: 'center' },
+  chevron: { fontSize: 20, color: COLORS.textLight },
+  logoutBtn: { marginHorizontal: SIZES.md, marginTop: 16, backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.lg, alignItems: 'center', borderWidth: 1, borderColor: COLORS.error },
   logoutText: { ...FONTS.body, color: COLORS.error, fontWeight: '600' },
-  version: { ...FONTS.caption, color: COLORS.gray, textAlign: 'center', marginTop: 16 },
+  version: { ...FONTS.caption, color: COLORS.textLight, textAlign: 'center', marginTop: 16 },
 });

@@ -1,14 +1,14 @@
 export const SERVICE_CATEGORIES = [
-  { id: '1', name: 'EV Charging Help', icon: '⚡', color: '#4A90D9', price: 25, duration: '30-60 min' },
-  { id: '2', name: 'Home Assistance', icon: '🏠', color: '#34C759', price: 35, duration: '1-2 hrs' },
-  { id: '3', name: 'Cleaning Help', icon: '🧹', color: '#FF9500', price: 40, duration: '2-3 hrs' },
-  { id: '4', name: 'Pickup & Drop', icon: '📦', color: '#AF52DE', price: 15, duration: '30-45 min' },
-  { id: '5', name: 'Senior Assistance', icon: '👴', color: '#FF2D55', price: 30, duration: '1-3 hrs' },
-  { id: '6', name: 'Technician Visit', icon: '🔧', color: '#5856D6', price: 45, duration: '1-2 hrs' },
-  { id: '7', name: 'Delivery Assistance', icon: '🚚', color: '#FF3B30', price: 20, duration: '30-60 min' },
-  { id: '8', name: 'Moving Help', icon: '🏗️', color: '#007AFF', price: 60, duration: '2-4 hrs' },
-  { id: '9', name: 'Errand Support', icon: '🏃', color: '#5AC8FA', price: 18, duration: '30-60 min' },
-  { id: '10', name: 'Emergency Help', icon: '🚨', color: '#EF4444', price: 50, duration: '15-30 min' },
+  { id: '1', name: 'EV Charging Help', icon: '⚡', color: '#2563EB', price: 25, duration: '30-60 min', badge: 'Available Now', badgeColor: '#16A34A' },
+  { id: '2', name: 'Home Assistance', icon: '🏠', color: '#16A34A', price: 35, duration: '1-2 hrs', badge: 'Available Now', badgeColor: '#16A34A' },
+  { id: '3', name: 'Cleaning Help', icon: '🧹', color: '#F97316', price: 40, duration: '2-3 hrs', badge: 'High Demand', badgeColor: '#F97316' },
+  { id: '4', name: 'Pickup & Drop', icon: '📦', color: '#2563EB', price: 15, duration: '30-45 min', badge: 'Available Now', badgeColor: '#16A34A' },
+  { id: '5', name: 'Senior Assistance', icon: '👴', color: '#16A34A', price: 30, duration: '1-3 hrs', badge: 'Scheduled Only', badgeColor: '#2563EB' },
+  { id: '6', name: 'Technician Visit', icon: '🔧', color: '#2563EB', price: 45, duration: '1-2 hrs', badge: 'Available Now', badgeColor: '#16A34A' },
+  { id: '7', name: 'Delivery Assistance', icon: '🚚', color: '#F97316', price: 20, duration: '30-60 min', badge: 'Available Now', badgeColor: '#16A34A' },
+  { id: '8', name: 'Moving Help', icon: '🏗️', color: '#2563EB', price: 60, duration: '2-4 hrs', badge: 'Scheduled Only', badgeColor: '#2563EB' },
+  { id: '9', name: 'Errand Support', icon: '🏃', color: '#16A34A', price: 18, duration: '30-60 min', badge: 'Available Now', badgeColor: '#16A34A' },
+  { id: '10', name: 'Emergency Help', icon: '🚨', color: '#DC2626', price: 50, duration: '15-30 min', badge: 'High Demand', badgeColor: '#F97316' },
 ];
 
 export const SERVICE_DETAILS = {

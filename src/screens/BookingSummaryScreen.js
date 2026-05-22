@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 
 export default function BookingSummaryScreen({ navigation, route }) {
   const { service, address, date, time, instructions } = route.params || {};
@@ -18,7 +18,7 @@ export default function BookingSummaryScreen({ navigation, route }) {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
           <View style={styles.serviceRow}>
-            <View style={[styles.iconCircle, { backgroundColor: (service?.color || COLORS.primary) + '20' }]}>
+            <View style={[styles.iconCircle, { backgroundColor: (service?.color || COLORS.primary) + '12' }]}>
               <Text style={{ fontSize: 28 }}>{service?.icon || '🔧'}</Text>
             </View>
             <View style={{ flex: 1, marginLeft: 12 }}>
@@ -70,26 +70,26 @@ export default function BookingSummaryScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.lightGray },
+  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   back: { ...FONTS.body, color: COLORS.primary, marginBottom: 12 },
   title: { ...FONTS.h2, color: COLORS.text },
   content: { flex: 1, padding: SIZES.lg },
-  card: { backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.lg, marginBottom: 12 },
+  card: { backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.lg, marginBottom: 12, ...SHADOWS.small },
   serviceRow: { flexDirection: 'row', alignItems: 'center' },
-  iconCircle: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center' },
+  iconCircle: { width: 56, height: 56, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
   serviceName: { ...FONTS.h3, color: COLORS.text },
-  serviceMeta: { ...FONTS.bodySm, color: COLORS.gray, marginTop: 2 },
+  serviceMeta: { ...FONTS.bodySm, color: COLORS.textLight, marginTop: 2 },
   cardTitle: { ...FONTS.bodySm, fontWeight: '600', color: COLORS.text, marginBottom: 8 },
-  cardValue: { ...FONTS.body, color: COLORS.gray },
+  cardValue: { ...FONTS.body, color: COLORS.textLight },
   priceRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  priceLabel: { ...FONTS.body, color: COLORS.gray },
+  priceLabel: { ...FONTS.body, color: COLORS.textLight },
   priceValue: { ...FONTS.body, color: COLORS.text },
-  totalRow: { borderTopWidth: 1, borderTopColor: COLORS.lightGray, paddingTop: 10, marginTop: 4 },
+  totalRow: { borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 12, marginTop: 4 },
   totalLabel: { ...FONTS.h3, color: COLORS.text },
   totalValue: { ...FONTS.h3, color: COLORS.primary },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: SIZES.lg, backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.lightGray },
+  footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: SIZES.lg, backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.border },
   footerTotal: { ...FONTS.h3, color: COLORS.text },
-  footerSub: { ...FONTS.caption, color: COLORS.gray },
+  footerSub: { ...FONTS.caption, color: COLORS.textLight },
   payBtn: { backgroundColor: COLORS.primary, borderRadius: SIZES.radius, paddingHorizontal: 28, paddingVertical: 14 },
   payBtnText: { ...FONTS.button, color: COLORS.white },
 });

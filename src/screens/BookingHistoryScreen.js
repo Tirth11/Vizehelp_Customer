@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 
 const BOOKINGS = [
   { id: '1', service: 'EV Charging Help', icon: '⚡', date: 'May 20, 2026', time: '10:00 AM', status: 'Completed', amount: '$32.00' },
@@ -12,13 +12,12 @@ const BOOKINGS = [
 
 export default function BookingHistoryScreen({ navigation }) {
   const [filter, setFilter] = useState('All');
-
   const filtered = filter === 'All' ? BOOKINGS : BOOKINGS.filter(b => b.status === filter);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('BookingDetail', { booking: item })}>
       <View style={styles.cardLeft}>
-        <View style={styles.iconCircle}><Text style={{ fontSize: 22 }}>{item.icon}</Text></View>
+        <View style={styles.iconCircle}><Text style={{ fontSize: 20 }}>{item.icon}</Text></View>
         <View style={{ marginLeft: 12 }}>
           <Text style={styles.serviceName}>{item.service}</Text>
           <Text style={styles.dateText}>{item.date} • {item.time}</Text>
@@ -54,7 +53,7 @@ export default function BookingHistoryScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white },
+  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   title: { ...FONTS.h2, color: COLORS.text },
   filterRow: { flexDirection: 'row', padding: SIZES.lg, paddingBottom: 0, gap: 10 },
   filterBtn: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, backgroundColor: COLORS.white, borderWidth: 1, borderColor: COLORS.border },
@@ -62,15 +61,15 @@ const styles = StyleSheet.create({
   filterText: { ...FONTS.bodySm, color: COLORS.text },
   filterTextActive: { color: COLORS.white, fontWeight: '600' },
   list: { padding: SIZES.lg },
-  card: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.md, marginBottom: 10 },
+  card: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.md, marginBottom: 10, ...SHADOWS.small },
   cardLeft: { flexDirection: 'row', alignItems: 'center' },
-  iconCircle: { width: 44, height: 44, borderRadius: 22, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' },
+  iconCircle: { width: 44, height: 44, borderRadius: 14, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
   serviceName: { ...FONTS.bodySm, fontWeight: '600', color: COLORS.text },
-  dateText: { ...FONTS.caption, color: COLORS.gray, marginTop: 2 },
+  dateText: { ...FONTS.caption, color: COLORS.textLight, marginTop: 2 },
   cardRight: { alignItems: 'flex-end' },
-  amount: { ...FONTS.bodySm, fontWeight: '600', color: COLORS.text },
-  statusBadge: { backgroundColor: '#D1FAE5', borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2, marginTop: 4 },
-  cancelledBadge: { backgroundColor: '#FEE2E2' },
-  statusText: { ...FONTS.caption, color: COLORS.success },
+  amount: { ...FONTS.bodySm, fontWeight: '700', color: COLORS.text },
+  statusBadge: { backgroundColor: COLORS.successLight, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2, marginTop: 4 },
+  cancelledBadge: { backgroundColor: COLORS.errorLight },
+  statusText: { ...FONTS.caption, color: COLORS.success, fontWeight: '500' },
   cancelledText: { color: COLORS.error },
 });

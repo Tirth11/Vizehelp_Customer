@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 
 const NOTIFICATIONS = [
   { id: '1', icon: '✅', title: 'Booking Confirmed', message: 'Your EV Charging Help booking is confirmed for May 22.', time: '2 min ago', read: false },
@@ -11,10 +11,12 @@ const NOTIFICATIONS = [
   { id: '6', icon: '⭐', title: 'Rate Your Experience', message: 'How was your Technician Visit? Leave a review.', time: '1 week ago', read: true },
 ];
 
-export default function NotificationsScreen({ navigation }) {
+export default function NotificationsScreen() {
   const renderItem = ({ item }) => (
     <TouchableOpacity style={[styles.card, !item.read && styles.unread]}>
-      <View style={styles.iconCircle}><Text style={{ fontSize: 20 }}>{item.icon}</Text></View>
+      <View style={[styles.iconCircle, !item.read && { backgroundColor: COLORS.primaryLight }]}>
+        <Text style={{ fontSize: 18 }}>{item.icon}</Text>
+      </View>
       <View style={{ flex: 1, marginLeft: 12 }}>
         <Text style={styles.notifTitle}>{item.title}</Text>
         <Text style={styles.notifMessage}>{item.message}</Text>
@@ -37,15 +39,15 @@ export default function NotificationsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   title: { ...FONTS.h2, color: COLORS.text },
-  markAll: { ...FONTS.bodySm, color: COLORS.primary },
+  markAll: { ...FONTS.bodySm, color: COLORS.primary, fontWeight: '600' },
   list: { padding: SIZES.lg },
-  card: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.md, marginBottom: 10 },
-  unread: { backgroundColor: '#EBF4FF' },
-  iconCircle: { width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' },
+  card: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.md, marginBottom: 10, ...SHADOWS.small },
+  unread: { borderLeftWidth: 3, borderLeftColor: COLORS.primary },
+  iconCircle: { width: 40, height: 40, borderRadius: 12, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center' },
   notifTitle: { ...FONTS.bodySm, fontWeight: '600', color: COLORS.text },
-  notifMessage: { ...FONTS.caption, color: COLORS.gray, marginTop: 4 },
-  notifTime: { ...FONTS.caption, color: COLORS.gray, marginTop: 6 },
+  notifMessage: { ...FONTS.caption, color: COLORS.textLight, marginTop: 4 },
+  notifTime: { ...FONTS.caption, color: COLORS.textDisabled, marginTop: 6 },
   dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.primary, marginTop: 4 },
 });

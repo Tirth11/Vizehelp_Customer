@@ -113,7 +113,7 @@ function MobileFrame({ children }) {
 }
 
 const frameStyles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#1a1a2e', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' },
+  container: { flex: 1, backgroundColor: '#0f172a', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' },
   phone: { width: 390, height: 844, backgroundColor: '#000', borderRadius: 50, padding: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 20 }, shadowOpacity: 0.4, shadowRadius: 40, elevation: 20 },
   notch: { width: 120, height: 28, backgroundColor: '#000', borderRadius: 14, alignSelf: 'center', marginBottom: 4, zIndex: 10 },
   screen: { flex: 1, borderRadius: 38, overflow: 'hidden', backgroundColor: '#fff' },

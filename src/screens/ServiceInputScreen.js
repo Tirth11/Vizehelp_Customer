@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 
 export default function ServiceInputScreen({ navigation, route }) {
   const { service, details } = route.params;
@@ -13,14 +13,10 @@ export default function ServiceInputScreen({ navigation, route }) {
     if (field.type === 'select') {
       return (
         <View key={field.key} style={styles.fieldGroup}>
-          <Text style={styles.label}>{field.label}</Text>
+          <Text style={styles.label}>{field.label}{field.required ? ' *' : ''}</Text>
           <View style={styles.optionsWrap}>
             {field.options.map(opt => (
-              <TouchableOpacity
-                key={opt}
-                style={[styles.optionChip, selectedOptions[field.key] === opt && styles.optionActive]}
-                onPress={() => setSelectedOptions({ ...selectedOptions, [field.key]: opt })}
-              >
+              <TouchableOpacity key={opt} style={[styles.optionChip, selectedOptions[field.key] === opt && styles.optionActive]} onPress={() => setSelectedOptions({ ...selectedOptions, [field.key]: opt })}>
                 <Text style={[styles.optionText, selectedOptions[field.key] === opt && styles.optionTextActive]}>{opt}</Text>
               </TouchableOpacity>
             ))}
@@ -31,8 +27,8 @@ export default function ServiceInputScreen({ navigation, route }) {
     if (field.type === 'textarea') {
       return (
         <View key={field.key} style={styles.fieldGroup}>
-          <Text style={styles.label}>{field.label}</Text>
-          <TextInput style={[styles.input, styles.textarea]} placeholder={`Enter ${field.label.toLowerCase()}`} multiline numberOfLines={4} value={formData[field.key] || ''} onChangeText={v => updateField(field.key, v)} />
+          <Text style={styles.label}>{field.label}{field.required ? ' *' : ''}</Text>
+          <TextInput style={[styles.input, styles.textarea]} placeholder={`Enter ${field.label.toLowerCase()}`} multiline numberOfLines={4} value={formData[field.key] || ''} onChangeText={v => updateField(field.key, v)} placeholderTextColor={COLORS.textDisabled} />
         </View>
       );
     }
@@ -49,14 +45,8 @@ export default function ServiceInputScreen({ navigation, route }) {
     }
     return (
       <View key={field.key} style={styles.fieldGroup}>
-        <Text style={styles.label}>{field.label}</Text>
-        <TextInput
-          style={styles.input}
-          placeholder={`Enter ${field.label.toLowerCase()}`}
-          keyboardType={field.type === 'number' ? 'numeric' : field.type === 'phone' ? 'phone-pad' : 'default'}
-          value={formData[field.key] || ''}
-          onChangeText={v => updateField(field.key, v)}
-        />
+        <Text style={styles.label}>{field.label}{field.required ? ' *' : ''}</Text>
+        <TextInput style={styles.input} placeholder={`Enter ${field.label.toLowerCase()}`} keyboardType={field.type === 'number' ? 'numeric' : field.type === 'phone' ? 'phone-pad' : 'default'} value={formData[field.key] || ''} onChangeText={v => updateField(field.key, v)} placeholderTextColor={COLORS.textDisabled} />
       </View>
     );
   };
@@ -93,26 +83,26 @@ export default function ServiceInputScreen({ navigation, route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.white },
-  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.lightGray },
+  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   back: { ...FONTS.body, color: COLORS.primary, marginBottom: 12 },
   title: { ...FONTS.h2, color: COLORS.text },
-  subtitle: { ...FONTS.bodySm, color: COLORS.gray, marginTop: 4 },
+  subtitle: { ...FONTS.bodySm, color: COLORS.textLight, marginTop: 4 },
   form: { flex: 1, padding: SIZES.lg },
   fieldGroup: { marginBottom: 20 },
   label: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '600', marginBottom: 8 },
-  input: { backgroundColor: COLORS.background, borderRadius: SIZES.radiusSm, paddingHorizontal: 16, paddingVertical: 14, ...FONTS.body, borderWidth: 1, borderColor: COLORS.border },
+  input: { backgroundColor: COLORS.background, borderRadius: SIZES.radius, paddingHorizontal: 16, paddingVertical: 14, ...FONTS.body, borderWidth: 1, borderColor: COLORS.border },
   textarea: { height: 100, textAlignVertical: 'top' },
   optionsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  optionChip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, backgroundColor: COLORS.lightGray },
-  optionActive: { backgroundColor: COLORS.primary },
+  optionChip: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 20, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.border },
+  optionActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
   optionText: { ...FONTS.bodySm, color: COLORS.text },
   optionTextActive: { color: COLORS.white },
   uploadBox: { borderWidth: 1.5, borderColor: COLORS.border, borderStyle: 'dashed', borderRadius: SIZES.radius, padding: 24, alignItems: 'center' },
-  uploadText: { ...FONTS.bodySm, color: COLORS.gray, marginTop: 8 },
+  uploadText: { ...FONTS.bodySm, color: COLORS.textLight, marginTop: 8 },
   sectionLabel: { ...FONTS.h3, color: COLORS.text, marginTop: 10, marginBottom: 12 },
   urgencyRow: { flexDirection: 'row', gap: 12 },
   urgencyBtn: { flex: 1, padding: 16, borderRadius: SIZES.radius, backgroundColor: COLORS.background, alignItems: 'center', borderWidth: 1.5, borderColor: COLORS.border },
-  urgencyActive: { borderColor: COLORS.primary, backgroundColor: '#EBF4FF' },
+  urgencyActive: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight },
   urgencyText: { ...FONTS.bodySm, color: COLORS.text, marginTop: 8 },
   urgencyTextActive: { color: COLORS.primary, fontWeight: '600' },
   continueBtn: { backgroundColor: COLORS.primary, borderRadius: SIZES.radius, paddingVertical: 16, alignItems: 'center', marginTop: 30 },
