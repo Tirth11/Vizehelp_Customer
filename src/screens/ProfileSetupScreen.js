@@ -1,67 +1,74 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { PrimaryButton } from '../components/Button';
 
 export default function ProfileSetupScreen({ navigation, route }) {
   const [form, setForm] = useState({ name: '', email: '', language: 'English' });
+  const valid = form.name.trim() && form.email.trim();
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.title}>Complete Your Profile</Text>
-        <Text style={styles.subtitle}>Tell us a bit about yourself</Text>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <View style={styles.badge}><Text style={styles.badgeText}>✓ Number verified</Text></View>
+          <Text style={styles.title}>Set up your profile</Text>
+          <Text style={styles.subtitle}>Just a few details so your Buddy knows who to help.</Text>
 
-        <TouchableOpacity style={styles.avatar}>
-          <Text style={styles.avatarText}>📷</Text>
-          <Text style={styles.avatarLabel}>Add Photo</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.avatarWrap} activeOpacity={0.8}>
+            <View style={styles.avatar}><Text style={styles.avatarText}>📷</Text></View>
+            <View style={styles.avatarEdit}><Text style={{ fontSize: 12 }}>＋</Text></View>
+          </TouchableOpacity>
+          <Text style={styles.avatarLabel}>Add a profile photo (optional)</Text>
 
-        <Text style={styles.label}>Full Name *</Text>
-        <TextInput style={styles.input} placeholder="Enter your full name" value={form.name} onChangeText={v => setForm({ ...form, name: v })} />
+          <Text style={styles.label}>Full Name *</Text>
+          <TextInput style={styles.input} placeholder="e.g. John Doe" placeholderTextColor={COLORS.textDisabled} value={form.name} onChangeText={v => setForm({ ...form, name: v })} />
 
-        <Text style={styles.label}>Email Address *</Text>
-        <TextInput style={styles.input} placeholder="Enter email" keyboardType="email-address" value={form.email} onChangeText={v => setForm({ ...form, email: v })} />
+          <Text style={styles.label}>Email Address *</Text>
+          <TextInput style={styles.input} placeholder="e.g. john@email.com" placeholderTextColor={COLORS.textDisabled} keyboardType="email-address" autoCapitalize="none" value={form.email} onChangeText={v => setForm({ ...form, email: v })} />
 
-        <Text style={styles.label}>Mobile Number</Text>
-        <TextInput style={[styles.input, styles.disabled]} value={`+1 ${route.params?.phone || ''}`} editable={false} />
+          <Text style={styles.label}>Mobile Number</Text>
+          <View style={styles.lockedInput}>
+            <Text style={styles.lockedText}>+1 {route.params?.phone || ''}</Text>
+            <Text style={styles.lockBadge}>🔒 Verified</Text>
+          </View>
 
-        <Text style={styles.label}>Preferred Language</Text>
-        <View style={styles.langRow}>
-          {['English', 'Spanish', 'French'].map(lang => (
-            <TouchableOpacity key={lang} style={[styles.langChip, form.language === lang && styles.langActive]} onPress={() => setForm({ ...form, language: lang })}>
-              <Text style={[styles.langText, form.language === lang && styles.langTextActive]}>{lang}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+          <Text style={styles.label}>Preferred Language</Text>
+          <View style={styles.langRow}>
+            {['English', 'Spanish', 'French'].map(lang => (
+              <TouchableOpacity key={lang} style={[styles.langChip, form.language === lang && styles.langActive]} onPress={() => setForm({ ...form, language: lang })}>
+                <Text style={[styles.langText, form.language === lang && styles.langTextActive]}>{lang}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        <Text style={styles.label}>Alternate Phone (Optional)</Text>
-        <TextInput style={styles.input} placeholder="Alternate number" keyboardType="phone-pad" />
-
-        <TouchableOpacity style={styles.button} onPress={() => navigation.replace('MainTabs')}>
-          <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <PrimaryButton title="Get Started" icon="🚀" disabled={!valid} onPress={() => navigation.replace('MainTabs')} style={{ marginTop: 30, marginBottom: 40 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.white },
-  content: { flex: 1, padding: SIZES.lg, paddingTop: 60 },
-  title: { ...FONTS.h1, color: COLORS.text },
-  subtitle: { ...FONTS.body, color: COLORS.gray, marginTop: 4, marginBottom: 24 },
-  avatar: { alignSelf: 'center', width: 90, height: 90, borderRadius: 45, backgroundColor: COLORS.lightGray, justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
-  avatarText: { fontSize: 28 },
-  avatarLabel: { ...FONTS.caption, color: COLORS.gray, marginTop: 4 },
-  label: { ...FONTS.bodySm, color: COLORS.text, marginBottom: 6, marginTop: 16 },
-  input: { backgroundColor: COLORS.background, borderRadius: SIZES.radiusSm, paddingHorizontal: 16, paddingVertical: 14, ...FONTS.body, borderWidth: 1, borderColor: COLORS.border },
-  disabled: { opacity: 0.6 },
+  content: { flex: 1, padding: SIZES.lg, paddingTop: 56 },
+  badge: { alignSelf: 'flex-start', backgroundColor: COLORS.successLight, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 14 },
+  badgeText: { ...FONTS.caption, color: COLORS.success, fontWeight: '700' },
+  title: { ...FONTS.h1 },
+  subtitle: { ...FONTS.bodySm, color: COLORS.textLight, marginTop: 6, lineHeight: 20 },
+  avatarWrap: { alignSelf: 'center', marginTop: 24 },
+  avatar: { width: 96, height: 96, borderRadius: 30, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
+  avatarText: { fontSize: 32 },
+  avatarEdit: { position: 'absolute', bottom: 0, right: 0, width: 30, height: 30, borderRadius: 15, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center', borderWidth: 3, borderColor: COLORS.white },
+  avatarLabel: { ...FONTS.caption, color: COLORS.textLight, textAlign: 'center', marginTop: 10, marginBottom: 8 },
+  label: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '700', marginBottom: 8, marginTop: 18 },
+  input: { backgroundColor: COLORS.background, borderRadius: SIZES.radius, paddingHorizontal: 16, paddingVertical: 15, ...FONTS.body, borderWidth: 1, borderColor: COLORS.border },
+  lockedInput: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: COLORS.successLight, borderRadius: SIZES.radius, paddingHorizontal: 16, paddingVertical: 15, borderWidth: 1, borderColor: '#BBF7D0' },
+  lockedText: { ...FONTS.body, color: COLORS.text, fontWeight: '600' },
+  lockBadge: { ...FONTS.caption, color: COLORS.success, fontWeight: '700' },
   langRow: { flexDirection: 'row', gap: 10 },
-  langChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, backgroundColor: COLORS.lightGray },
-  langActive: { backgroundColor: COLORS.primary },
-  langText: { ...FONTS.bodySm, color: COLORS.text },
+  langChip: { paddingHorizontal: 18, paddingVertical: 11, borderRadius: 22, backgroundColor: COLORS.background, borderWidth: 1, borderColor: COLORS.border },
+  langActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
+  langText: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '600' },
   langTextActive: { color: COLORS.white },
-  button: { backgroundColor: COLORS.primary, borderRadius: SIZES.radius, paddingVertical: 16, alignItems: 'center', marginTop: 32, marginBottom: 40 },
-  buttonDisabled: { opacity: 0.5 },
-  buttonText: { ...FONTS.button, color: COLORS.white },
 });
