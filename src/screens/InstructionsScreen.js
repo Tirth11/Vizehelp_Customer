@@ -1,65 +1,65 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
+import ScreenHeader from '../components/ScreenHeader';
+import StepProgress from '../components/StepProgress';
+import { PrimaryButton } from '../components/Button';
 
 export default function InstructionsScreen({ navigation, route }) {
   const [instructions, setInstructions] = useState('');
   const [contactPreference, setContactPreference] = useState('Call');
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>← Back</Text></TouchableOpacity>
-        <Text style={styles.title}>Special Instructions</Text>
-        <Text style={styles.subtitle}>Any additional info for your Buddy?</Text>
-      </View>
+    <View style={styles.container}>
+      <ScreenHeader title="Add instructions" subtitle="Anything your Buddy should know?" onBack={() => navigation.goBack()} />
+      <StepProgress current={4} />
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.label}>Instructions for Buddy</Text>
-        <TextInput style={styles.textarea} placeholder="e.g. Ring doorbell twice, gate code is 1234..." multiline numberOfLines={6} value={instructions} onChangeText={setInstructions} placeholderTextColor={COLORS.gray} />
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <ScrollView style={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <Text style={styles.label}>Instructions for your Buddy</Text>
+          <TextInput style={styles.textarea} placeholder="e.g. Ring the doorbell twice, the gate code is 1234…" multiline numberOfLines={6} value={instructions} onChangeText={setInstructions} placeholderTextColor={COLORS.textDisabled} />
+          <Text style={styles.optional}>Optional — but it really helps things go smoothly.</Text>
 
-        <Text style={styles.label}>Contact Preference</Text>
-        <View style={styles.prefRow}>
-          {['Call', 'Text', 'In-App Chat'].map(p => (
-            <TouchableOpacity key={p} style={[styles.prefBtn, contactPreference === p && styles.prefActive]} onPress={() => setContactPreference(p)}>
-              <Text style={[styles.prefText, contactPreference === p && styles.prefTextActive]}>{p === 'Call' ? '📞' : p === 'Text' ? '💬' : '📱'} {p}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+          <Text style={styles.label}>How should your Buddy reach you?</Text>
+          <View style={styles.prefRow}>
+            {[{ p: 'Call', i: '📞' }, { p: 'Text', i: '💬' }, { p: 'In-App Chat', i: '📱' }].map(({ p, i }) => {
+              const active = contactPreference === p;
+              return (
+                <TouchableOpacity key={p} style={[styles.prefBtn, active && styles.prefActive]} onPress={() => setContactPreference(p)}>
+                  <Text style={{ fontSize: 20 }}>{i}</Text>
+                  <Text style={[styles.prefText, active && styles.prefTextActive]}>{p}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
 
-        <View style={styles.tipBox}>
-          <Text style={styles.tipTitle}>💡 Tips</Text>
-          <Text style={styles.tipText}>• Include access instructions if needed</Text>
-          <Text style={styles.tipText}>• Mention parking availability</Text>
-          <Text style={styles.tipText}>• Note any pets or safety concerns</Text>
-        </View>
+          <View style={styles.tipBox}>
+            <Text style={styles.tipTitle}>💡 Helpful tips</Text>
+            <Text style={styles.tipText}>• Mention building access or gate codes</Text>
+            <Text style={styles.tipText}>• Note parking availability nearby</Text>
+            <Text style={styles.tipText}>• Flag any pets or safety concerns</Text>
+          </View>
 
-        <TouchableOpacity style={styles.continueBtn} onPress={() => navigation.navigate('BookingSummary', { ...route.params, instructions, contactPreference })}>
-          <Text style={styles.continueBtnText}>Review Booking</Text>
-        </TouchableOpacity>
-        <View style={{ height: 40 }} />
-      </ScrollView>
-    </SafeAreaView>
+          <PrimaryButton title="Review booking" icon="→" onPress={() => navigation.navigate('BookingSummary', { ...route.params, instructions, contactPreference })} style={{ marginTop: 28 }} />
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.white },
-  header: { padding: SIZES.lg, paddingTop: 50, borderBottomWidth: 1, borderBottomColor: COLORS.lightGray },
-  back: { ...FONTS.body, color: COLORS.primary, marginBottom: 12 },
-  title: { ...FONTS.h2, color: COLORS.text },
-  subtitle: { ...FONTS.bodySm, color: COLORS.gray, marginTop: 4 },
-  content: { flex: 1, padding: SIZES.lg },
-  label: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '600', marginBottom: 8, marginTop: 20 },
-  textarea: { backgroundColor: COLORS.background, borderRadius: SIZES.radiusSm, paddingHorizontal: 16, paddingVertical: 14, ...FONTS.body, borderWidth: 1, borderColor: COLORS.border, height: 140, textAlignVertical: 'top' },
+  content: { flex: 1, paddingHorizontal: SIZES.lg, paddingTop: 10 },
+  label: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '700', marginBottom: 8, marginTop: 18 },
+  textarea: { backgroundColor: COLORS.background, borderRadius: SIZES.radius, paddingHorizontal: 16, paddingVertical: 14, ...FONTS.body, borderWidth: 1, borderColor: COLORS.border, height: 130, textAlignVertical: 'top' },
+  optional: { ...FONTS.caption, color: COLORS.textLight, marginTop: 8 },
   prefRow: { flexDirection: 'row', gap: 10 },
-  prefBtn: { flex: 1, padding: 12, borderRadius: SIZES.radiusSm, backgroundColor: COLORS.background, alignItems: 'center', borderWidth: 1, borderColor: COLORS.border },
-  prefActive: { borderColor: COLORS.primary, backgroundColor: '#EBF4FF' },
-  prefText: { ...FONTS.bodySm, color: COLORS.text },
-  prefTextActive: { color: COLORS.primary, fontWeight: '600' },
-  tipBox: { backgroundColor: '#FFF8E1', borderRadius: SIZES.radius, padding: SIZES.lg, marginTop: 24 },
-  tipTitle: { ...FONTS.bodySm, fontWeight: '600', color: COLORS.text, marginBottom: 8 },
-  tipText: { ...FONTS.caption, color: COLORS.gray, marginBottom: 4 },
-  continueBtn: { backgroundColor: COLORS.primary, borderRadius: SIZES.radius, paddingVertical: 16, alignItems: 'center', marginTop: 30 },
-  continueBtnText: { ...FONTS.button, color: COLORS.white },
+  prefBtn: { flex: 1, paddingVertical: 14, borderRadius: SIZES.radius, backgroundColor: COLORS.background, alignItems: 'center', borderWidth: 1.5, borderColor: COLORS.border },
+  prefText: { ...FONTS.caption, color: COLORS.text, marginTop: 6, fontWeight: '600' },
+  prefTextActive: { color: COLORS.primary },
+  prefActive: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight },
+  tipBox: { backgroundColor: COLORS.amberLight, borderRadius: SIZES.radiusLg, padding: SIZES.lg, marginTop: 26 },
+  tipTitle: { ...FONTS.bodySm, fontWeight: '700', color: '#92400E', marginBottom: 8 },
+  tipText: { ...FONTS.caption, color: '#92400E', marginBottom: 4, lineHeight: 18 },
 });

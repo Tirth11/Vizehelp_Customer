@@ -1,71 +1,98 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
-import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { PrimaryButton } from '../components/Button';
 
 export default function OTPScreen({ navigation, route }) {
   const { phone } = route.params;
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [seconds, setSeconds] = useState(30);
   const inputs = useRef([]);
 
+  useEffect(() => {
+    if (seconds <= 0) return;
+    const t = setTimeout(() => setSeconds(s => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [seconds]);
+
   const handleChange = (text, index) => {
+    const clean = text.replace(/[^0-9]/g, '');
     const newOtp = [...otp];
-    newOtp[index] = text;
+    newOtp[index] = clean.slice(-1);
     setOtp(newOtp);
-    if (text && index < 5) inputs.current[index + 1]?.focus();
+    if (clean && index < 5) inputs.current[index + 1]?.focus();
   };
 
-  const handleVerify = () => {
-    navigation.navigate('ProfileSetup', { phone });
+  const handleKeyPress = (e, index) => {
+    if (e.nativeEvent.key === 'Backspace' && !otp[index] && index > 0) {
+      inputs.current[index - 1]?.focus();
+    }
   };
+
+  const filled = otp.every(d => d !== '');
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>← Back</Text>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.content}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()} activeOpacity={0.7}>
+          <Text style={styles.backIcon}>‹</Text>
         </TouchableOpacity>
 
-        <Text style={styles.title}>Verify OTP</Text>
-        <Text style={styles.subtitle}>Enter the 6-digit code sent to +1 {phone}</Text>
+        <View style={styles.iconCircle}><Text style={{ fontSize: 34 }}>📩</Text></View>
+        <Text style={styles.title}>Verify your number</Text>
+        <Text style={styles.subtitle}>Enter the 6-digit code sent to{'\n'}<Text style={styles.phone}>+1 {phone}</Text></Text>
 
         <View style={styles.otpRow}>
           {otp.map((digit, i) => (
             <TextInput
               key={i}
-              ref={ref => inputs.current[i] = ref}
+              ref={ref => (inputs.current[i] = ref)}
               style={[styles.otpInput, digit && styles.otpFilled]}
               keyboardType="number-pad"
               maxLength={1}
               value={digit}
               onChangeText={t => handleChange(t, i)}
+              onKeyPress={e => handleKeyPress(e, i)}
             />
           ))}
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleVerify}>
-          <Text style={styles.buttonText}>Verify OTP</Text>
-        </TouchableOpacity>
+        <PrimaryButton title="Verify & Continue" disabled={!filled} onPress={() => navigation.navigate('ProfileSetup', { phone })} />
 
-        <View style={styles.actions}>
-          <TouchableOpacity><Text style={styles.link}>Resend OTP</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.link}>Change Number</Text></TouchableOpacity>
+        <View style={styles.resendRow}>
+          {seconds > 0 ? (
+            <Text style={styles.resendMuted}>Resend code in 0:{seconds.toString().padStart(2, '0')}</Text>
+          ) : (
+            <TouchableOpacity onPress={() => setSeconds(30)}><Text style={styles.link}>Resend OTP</Text></TouchableOpacity>
+          )}
+          <Text style={styles.dot}>·</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.link}>Change number</Text></TouchableOpacity>
         </View>
-      </View>
+
+        <View style={styles.demoNote}>
+          <Text style={styles.demoText}>💡 Demo mode — enter any 6 digits to continue</Text>
+        </View>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.white },
-  content: { flex: 1, padding: SIZES.lg, paddingTop: 60 },
-  back: { ...FONTS.body, color: COLORS.primary, marginBottom: 30 },
-  title: { ...FONTS.h1, color: COLORS.text },
-  subtitle: { ...FONTS.body, color: COLORS.textLight, marginTop: 8, marginBottom: 32 },
-  otpRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 32 },
-  otpInput: { width: 48, height: 56, borderRadius: SIZES.radius, borderWidth: 1.5, borderColor: COLORS.border, textAlign: 'center', ...FONTS.h2, backgroundColor: COLORS.background },
-  otpFilled: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight },
-  button: { backgroundColor: COLORS.primary, borderRadius: SIZES.radius, paddingVertical: 16, alignItems: 'center' },
-  buttonText: { ...FONTS.button, color: COLORS.white },
-  actions: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 24 },
-  link: { ...FONTS.bodySm, color: COLORS.primary, fontWeight: '600' },
+  content: { flex: 1, padding: SIZES.lg, paddingTop: 56 },
+  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center', marginBottom: 24 },
+  backIcon: { fontSize: 28, color: COLORS.text, marginTop: -4, fontWeight: '600' },
+  iconCircle: { width: 68, height: 68, borderRadius: 22, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center', marginBottom: 18 },
+  title: { ...FONTS.h1 },
+  subtitle: { ...FONTS.body, color: COLORS.textLight, marginTop: 10, lineHeight: 24 },
+  phone: { color: COLORS.text, fontWeight: '700' },
+  otpRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 28, marginBottom: 28 },
+  otpInput: { width: 48, height: 58, borderRadius: SIZES.radius, borderWidth: 1.5, borderColor: COLORS.border, textAlign: 'center', fontSize: 22, fontWeight: '700', color: COLORS.text, backgroundColor: COLORS.background },
+  otpFilled: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight, color: COLORS.primary },
+  resendRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 24, gap: 10 },
+  resendMuted: { ...FONTS.bodySm, color: COLORS.textLight },
+  link: { ...FONTS.bodySm, color: COLORS.primary, fontWeight: '700' },
+  dot: { color: COLORS.textLight },
+  demoNote: { marginTop: 'auto', backgroundColor: COLORS.amberLight, borderRadius: SIZES.radius, padding: 14, alignItems: 'center' },
+  demoText: { ...FONTS.caption, color: '#92400E', fontWeight: '600' },
 });

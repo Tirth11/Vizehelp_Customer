@@ -1,16 +1,15 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
+import ScreenHeader from '../components/ScreenHeader';
 
 export default function BookingDetailScreen({ navigation, route }) {
   const { booking = {} } = route.params || {};
+  const cancelled = booking.status === 'Cancelled';
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.back}>← Back</Text></TouchableOpacity>
-        <Text style={styles.title}>Booking Details</Text>
-      </View>
+    <View style={styles.container}>
+      <ScreenHeader title="Booking details" onBack={() => navigation.goBack()} />
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.card}>
@@ -18,8 +17,8 @@ export default function BookingDetailScreen({ navigation, route }) {
             <View style={styles.iconCircle}><Text style={{ fontSize: 28 }}>{booking.icon || '🔧'}</Text></View>
             <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.serviceName}>{booking.service || 'Service'}</Text>
-              <View style={[styles.statusBadge, booking.status === 'Cancelled' && styles.cancelledBadge]}>
-                <Text style={[styles.statusText, booking.status === 'Cancelled' && styles.cancelledText]}>{booking.status || 'Completed'}</Text>
+              <View style={[styles.statusBadge, cancelled && styles.cancelledBadge]}>
+                <Text style={[styles.statusText, cancelled && styles.cancelledText]}>{cancelled ? '✕ ' : '✓ '}{booking.status || 'Completed'}</Text>
               </View>
             </View>
             <Text style={styles.amount}>{booking.amount || '$35.00'}</Text>
@@ -27,76 +26,91 @@ export default function BookingDetailScreen({ navigation, route }) {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Booking Info</Text>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Booking ID</Text><Text style={styles.infoValue}>#VH{booking.id || '123456'}</Text></View>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Date</Text><Text style={styles.infoValue}>{booking.date || 'May 20, 2026'}</Text></View>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Time</Text><Text style={styles.infoValue}>{booking.time || '10:00 AM'}</Text></View>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Duration</Text><Text style={styles.infoValue}>45 min</Text></View>
+          <Text style={styles.cardTitle}>Booking info</Text>
+          <InfoRow label="Booking ID" value={`#VH${booking.id || '123456'}`} />
+          <InfoRow label="Date" value={booking.date || 'May 20, 2026'} />
+          <InfoRow label="Time" value={booking.time || '10:00 AM'} />
+          <InfoRow label="Duration" value="45 min" last />
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Buddy Details</Text>
+          <Text style={styles.cardTitle}>Your Buddy</Text>
           <View style={styles.buddyRow}>
             <View style={styles.avatar}><Text style={{ fontSize: 24 }}>👤</Text></View>
-            <View style={{ marginLeft: 12 }}>
+            <View style={{ flex: 1, marginLeft: 12 }}>
               <Text style={styles.buddyName}>Alex Johnson</Text>
-              <Text style={styles.buddyMeta}>⭐ 4.9 • 234 jobs</Text>
+              <Text style={styles.buddyMeta}>⭐ 4.9 · 234 jobs · Verified</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Payment</Text>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Service Fee</Text><Text style={styles.infoValue}>$35.00</Text></View>
-          <View style={styles.infoRow}><Text style={styles.infoLabel}>Platform Fee</Text><Text style={styles.infoValue}>$5.00</Text></View>
-          <View style={[styles.infoRow, styles.totalRow]}><Text style={styles.totalLabel}>Total</Text><Text style={styles.totalValue}>{booking.amount || '$40.00'}</Text></View>
+          <InfoRow label="Service fee" value="$35.00" />
+          <InfoRow label="Platform fee" value="$5.00" />
+          <View style={styles.totalRow}>
+            <Text style={styles.totalLabel}>Total paid</Text>
+            <Text style={styles.totalValue}>{booking.amount || '$40.00'}</Text>
+          </View>
         </View>
 
         <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => navigation.navigate('RaiseIssue', { booking })}>
+          <TouchableOpacity style={styles.actionBtn} activeOpacity={0.85} onPress={() => navigation.navigate('RaiseIssue', { booking })}>
             <Text style={styles.actionIcon}>🚨</Text>
-            <Text style={styles.actionText}>Raise Issue</Text>
+            <Text style={styles.actionText}>Raise issue</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn}>
+          <TouchableOpacity style={styles.actionBtn} activeOpacity={0.85}>
             <Text style={styles.actionIcon}>📄</Text>
-            <Text style={styles.actionText}>Download Invoice</Text>
+            <Text style={styles.actionText}>Invoice</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.actionBtn, styles.rebookBtn]} activeOpacity={0.85} onPress={() => navigation.navigate('MainTabs')}>
+            <Text style={styles.actionIcon}>🔁</Text>
+            <Text style={[styles.actionText, { color: COLORS.primary }]}>Rebook</Text>
           </TouchableOpacity>
         </View>
 
         <View style={{ height: 40 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
+  );
+}
+
+function InfoRow({ label, value, last }) {
+  return (
+    <View style={[styles.infoRow, !last && styles.infoRowBorder]}>
+      <Text style={styles.infoLabel}>{label}</Text>
+      <Text style={styles.infoValue}>{value}</Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
-  header: { padding: SIZES.lg, paddingTop: 50, backgroundColor: COLORS.white, borderBottomWidth: 1, borderBottomColor: COLORS.border },
-  back: { ...FONTS.body, color: COLORS.primary, marginBottom: 12 },
-  title: { ...FONTS.h2, color: COLORS.text },
   content: { flex: 1, padding: SIZES.lg },
   card: { backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.lg, marginBottom: 12, ...SHADOWS.small },
   serviceRow: { flexDirection: 'row', alignItems: 'center' },
-  iconCircle: { width: 50, height: 50, borderRadius: 14, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
+  iconCircle: { width: 54, height: 54, borderRadius: 16, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
   serviceName: { ...FONTS.h3, color: COLORS.text },
   amount: { ...FONTS.h3, color: COLORS.primary },
-  statusBadge: { backgroundColor: COLORS.successLight, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2, alignSelf: 'flex-start', marginTop: 4 },
+  statusBadge: { backgroundColor: COLORS.successLight, borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, alignSelf: 'flex-start', marginTop: 6 },
   cancelledBadge: { backgroundColor: COLORS.errorLight },
-  statusText: { ...FONTS.caption, color: COLORS.success, fontWeight: '500' },
+  statusText: { ...FONTS.caption, color: COLORS.success, fontWeight: '700' },
   cancelledText: { color: COLORS.error },
-  cardTitle: { ...FONTS.h3, color: COLORS.text, marginBottom: 12 },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
+  cardTitle: { ...FONTS.h3, color: COLORS.text, marginBottom: 6 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 11 },
+  infoRowBorder: { borderBottomWidth: 1, borderBottomColor: COLORS.border },
   infoLabel: { ...FONTS.bodySm, color: COLORS.textLight },
-  infoValue: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '500' },
-  totalRow: { borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 10, marginTop: 4 },
-  totalLabel: { ...FONTS.body, fontWeight: '600', color: COLORS.text },
-  totalValue: { ...FONTS.body, fontWeight: '700', color: COLORS.primary },
-  buddyRow: { flexDirection: 'row', alignItems: 'center' },
-  avatar: { width: 44, height: 44, borderRadius: 14, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
-  buddyName: { ...FONTS.body, fontWeight: '600', color: COLORS.text },
+  infoValue: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '700' },
+  buddyRow: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
+  avatar: { width: 48, height: 48, borderRadius: 16, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
+  buddyName: { ...FONTS.body, fontWeight: '700', color: COLORS.text },
   buddyMeta: { ...FONTS.caption, color: COLORS.textLight, marginTop: 2 },
+  totalRow: { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: COLORS.border, paddingTop: 12, marginTop: 6 },
+  totalLabel: { ...FONTS.body, fontWeight: '700', color: COLORS.text },
+  totalValue: { ...FONTS.h3, color: COLORS.primary },
   actionsRow: { flexDirection: 'row', gap: 10 },
-  actionBtn: { flex: 1, backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: 16, alignItems: 'center', ...SHADOWS.small },
+  actionBtn: { flex: 1, backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, paddingVertical: 16, alignItems: 'center', ...SHADOWS.small },
+  rebookBtn: { backgroundColor: COLORS.primaryLight },
   actionIcon: { fontSize: 20 },
-  actionText: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '500', marginTop: 6 },
+  actionText: { ...FONTS.caption, color: COLORS.text, fontWeight: '700', marginTop: 6 },
 });

@@ -39,16 +39,32 @@ const Tab = createBottomTabNavigator();
 function TabIcon({ label, focused }) {
   const icons = { Home: '🏠', Bookings: '📋', Notifications: '🔔', Support: '💬', Profile: '👤' };
   return (
-    <View style={{ alignItems: 'center' }}>
-      <Text style={{ fontSize: 20 }}>{icons[label]}</Text>
-      <Text style={{ fontSize: 10, color: focused ? COLORS.primary : COLORS.gray }}>{label}</Text>
+    <View style={tabStyles.item}>
+      <View style={[tabStyles.iconWrap, focused && tabStyles.iconWrapActive]}>
+        <Text style={{ fontSize: 19 }}>{icons[label]}</Text>
+      </View>
+      <Text style={[tabStyles.label, { color: focused ? COLORS.primary : COLORS.gray }]} numberOfLines={1}>{label}</Text>
     </View>
   );
 }
 
 function MainTabs() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false, tabBarShowLabel: false, tabBarStyle: { height: 65, paddingBottom: 8, paddingTop: 8 } }}>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarActiveTintColor: COLORS.primary,
+        tabBarStyle: {
+          height: 72,
+          paddingBottom: 10,
+          paddingTop: 10,
+          borderTopWidth: 1,
+          borderTopColor: '#EEF1F6',
+          backgroundColor: '#FFFFFF',
+        },
+      }}
+    >
       <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarIcon: ({ focused }) => <TabIcon label="Home" focused={focused} /> }} />
       <Tab.Screen name="Bookings" component={BookingHistoryScreen} options={{ tabBarIcon: ({ focused }) => <TabIcon label="Bookings" focused={focused} /> }} />
       <Tab.Screen name="Notifications" component={NotificationsScreen} options={{ tabBarIcon: ({ focused }) => <TabIcon label="Notifications" focused={focused} /> }} />
@@ -57,6 +73,13 @@ function MainTabs() {
     </Tab.Navigator>
   );
 }
+
+const tabStyles = StyleSheet.create({
+  item: { alignItems: 'center', justifyContent: 'center', width: 64 },
+  iconWrap: { width: 44, height: 30, borderRadius: 15, justifyContent: 'center', alignItems: 'center' },
+  iconWrapActive: { backgroundColor: COLORS.primaryLight },
+  label: { fontSize: 10, fontWeight: '600', marginTop: 3 },
+});
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
