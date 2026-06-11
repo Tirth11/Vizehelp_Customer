@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 import ScreenHeader from '../components/ScreenHeader';
 import StepProgress from '../components/StepProgress';
 import { PrimaryButton } from '../components/Button';
@@ -61,10 +61,12 @@ export default function DateTimeScreen({ navigation, route }) {
         ) : (
           <Text style={styles.hint}>Choose a time slot to continue.</Text>
         )}
-
-        <PrimaryButton title="Continue" icon="→" disabled={!selectedTime} onPress={() => navigation.navigate('Instructions', { ...route.params, date: dates[selectedDate], time: selectedTime })} style={{ marginTop: 22 }} />
-        <View style={{ height: 40 }} />
+        <View style={{ height: 20 }} />
       </ScrollView>
+
+      <View style={styles.footer}>
+        <PrimaryButton title="Continue" icon="→" disabled={!selectedTime} onPress={() => navigation.navigate('Instructions', { ...route.params, date: dates[selectedDate], time: selectedTime })} />
+      </View>
     </View>
   );
 }
@@ -88,4 +90,5 @@ const styles = StyleSheet.create({
   selectedBanner: { backgroundColor: COLORS.successLight, borderRadius: SIZES.radius, padding: 14, marginTop: 22, alignItems: 'center' },
   selectedText: { ...FONTS.bodySm, color: COLORS.success, fontWeight: '700' },
   hint: { ...FONTS.caption, color: COLORS.textLight, textAlign: 'center', marginTop: 22 },
+  footer: { padding: SIZES.lg, paddingBottom: Platform.OS === 'web' || Platform.OS === 'ios' ? 28 : SIZES.lg, borderTopWidth: 1, borderTopColor: COLORS.border, backgroundColor: COLORS.white, ...SHADOWS.medium },
 });

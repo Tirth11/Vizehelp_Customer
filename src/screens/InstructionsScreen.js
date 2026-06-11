@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 import ScreenHeader from '../components/ScreenHeader';
 import StepProgress from '../components/StepProgress';
 import { PrimaryButton } from '../components/Button';
@@ -39,10 +39,12 @@ export default function InstructionsScreen({ navigation, route }) {
             <Text style={styles.tipText}>• Note parking availability nearby</Text>
             <Text style={styles.tipText}>• Flag any pets or safety concerns</Text>
           </View>
-
-          <PrimaryButton title="Review booking" icon="→" onPress={() => navigation.navigate('BookingSummary', { ...route.params, instructions, contactPreference })} style={{ marginTop: 28 }} />
-          <View style={{ height: 40 }} />
+          <View style={{ height: 20 }} />
         </ScrollView>
+
+        <View style={styles.footer}>
+          <PrimaryButton title="Review booking" icon="→" onPress={() => navigation.navigate('BookingSummary', { ...route.params, instructions, contactPreference })} />
+        </View>
       </KeyboardAvoidingView>
     </View>
   );
@@ -62,4 +64,5 @@ const styles = StyleSheet.create({
   tipBox: { backgroundColor: COLORS.amberLight, borderRadius: SIZES.radiusLg, padding: SIZES.lg, marginTop: 26 },
   tipTitle: { ...FONTS.bodySm, fontWeight: '700', color: '#92400E', marginBottom: 8 },
   tipText: { ...FONTS.caption, color: '#92400E', marginBottom: 4, lineHeight: 18 },
+  footer: { padding: SIZES.lg, paddingBottom: Platform.OS === 'web' || Platform.OS === 'ios' ? 28 : SIZES.lg, borderTopWidth: 1, borderTopColor: COLORS.border, backgroundColor: COLORS.white, ...SHADOWS.medium },
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity, StyleSheet, View } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet, View, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SIZES, SHADOWS, GRADIENTS } from '../constants/theme';
 
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   footer: {
     paddingHorizontal: SIZES.lg,
     paddingTop: 14,
-    paddingBottom: 22,
+    paddingBottom: Platform.OS === 'web' || Platform.OS === 'ios' ? 28 : 22,
     backgroundColor: COLORS.white,
     borderTopWidth: 1,
     borderTopColor: COLORS.border,

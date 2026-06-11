@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 import { PrimaryButton } from '../components/Button';
 
 export default function ProfileSetupScreen({ navigation, route }) {
@@ -41,9 +41,12 @@ export default function ProfileSetupScreen({ navigation, route }) {
               </TouchableOpacity>
             ))}
           </View>
-
-          <PrimaryButton title="Get Started" icon="🚀" disabled={!valid} onPress={() => navigation.replace('MainTabs')} style={{ marginTop: 30, marginBottom: 40 }} />
+          <View style={{ height: 20 }} />
         </ScrollView>
+
+        <View style={styles.footer}>
+          <PrimaryButton title="Get Started" icon="🚀" disabled={!valid} onPress={() => navigation.replace('MainTabs')} />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -71,4 +74,5 @@ const styles = StyleSheet.create({
   langActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
   langText: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '600' },
   langTextActive: { color: COLORS.white },
+  footer: { padding: SIZES.lg, paddingBottom: Platform.OS === 'web' || Platform.OS === 'ios' ? 28 : SIZES.lg, borderTopWidth: 1, borderTopColor: COLORS.border, backgroundColor: COLORS.white, ...SHADOWS.medium },
 });

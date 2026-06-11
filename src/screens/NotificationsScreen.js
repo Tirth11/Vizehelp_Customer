@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   subtitle: { ...FONTS.caption, color: COLORS.textLight, marginTop: 4 },
   markAllBtn: { backgroundColor: COLORS.primaryLight, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7 },
   markAll: { ...FONTS.caption, color: COLORS.primary, fontWeight: '700' },
-  list: { padding: SIZES.lg },
+  list: { padding: SIZES.lg, paddingBottom: Platform.OS === 'web' || Platform.OS === 'ios' ? 100 : SIZES.lg },
   card: { flexDirection: 'row', alignItems: 'flex-start', backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.md, marginBottom: 10, ...SHADOWS.small },
   unread: { backgroundColor: '#FAFCFF', borderLeftWidth: 3, borderLeftColor: COLORS.primary },
   iconCircle: { width: 42, height: 42, borderRadius: 14, justifyContent: 'center', alignItems: 'center' },

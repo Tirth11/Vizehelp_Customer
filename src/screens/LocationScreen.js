@@ -14,7 +14,7 @@ export default function LocationScreen({ navigation }) {
     <View style={styles.container}>
       <ScreenHeader title="Select location" subtitle="Where do you need help?" onBack={() => navigation.goBack()} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: SIZES.lg }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: SIZES.lg, paddingBottom: Platform.OS === 'web' || Platform.OS === 'ios' ? 100 : SIZES.lg }}>
         <View style={styles.searchBox}>
           <Text style={{ fontSize: 16 }}>🔍</Text>
           <TextInput style={styles.searchInput} placeholder="Search address or ZIP code" placeholderTextColor={COLORS.textLight} value={search} onChangeText={setSearch} />

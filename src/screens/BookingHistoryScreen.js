@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   filterActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
   filterText: { ...FONTS.bodySm, color: COLORS.text, fontWeight: '600' },
   filterTextActive: { color: COLORS.white },
-  list: { padding: SIZES.lg },
+  list: { padding: SIZES.lg, paddingBottom: Platform.OS === 'web' || Platform.OS === 'ios' ? 100 : SIZES.lg },
   card: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.md, marginBottom: 10, ...SHADOWS.small },
   iconCircle: { width: 48, height: 48, borderRadius: 16, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center' },
   serviceName: { ...FONTS.body, fontWeight: '700', color: COLORS.text },

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { COLORS, FONTS, SIZES } from '../constants/theme';
+import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 import ScreenHeader from '../components/ScreenHeader';
 import StepProgress from '../components/StepProgress';
 import { PrimaryButton } from '../components/Button';
@@ -84,10 +84,12 @@ export default function ServiceInputScreen({ navigation, route }) {
               );
             })}
           </View>
-
-          <PrimaryButton title="Continue" icon="→" onPress={() => navigation.navigate('Address', { service, details, formData, selectedOptions })} style={{ marginTop: 28 }} />
-          <View style={{ height: 40 }} />
+          <View style={{ height: 20 }} />
         </ScrollView>
+
+        <View style={styles.footer}>
+          <PrimaryButton title="Continue" icon="→" onPress={() => navigation.navigate('Address', { service, details, formData, selectedOptions })} />
+        </View>
       </KeyboardAvoidingView>
     </View>
   );
@@ -118,4 +120,5 @@ const styles = StyleSheet.create({
   urgencyActive: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight },
   urgencyText: { ...FONTS.caption, color: COLORS.text, marginTop: 8, textAlign: 'center', fontWeight: '600' },
   urgencyTextActive: { color: COLORS.primary },
+  footer: { padding: SIZES.lg, paddingBottom: Platform.OS === 'web' || Platform.OS === 'ios' ? 28 : SIZES.lg, borderTopWidth: 1, borderTopColor: COLORS.border, backgroundColor: COLORS.white, ...SHADOWS.medium },
 });

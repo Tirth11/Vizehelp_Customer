@@ -32,6 +32,9 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import NotificationsScreen from './src/screens/NotificationsScreen';
 import SupportScreen from './src/screens/SupportScreen';
 import RaiseIssueScreen from './src/screens/RaiseIssueScreen';
+import EnterpriseSelectScreen from './src/screens/EnterpriseSelectScreen';
+import ServiceCompletedScreen from './src/screens/ServiceCompletedScreen';
+import InvoiceScreen from './src/screens/InvoiceScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -56,12 +59,36 @@ function MainTabs() {
         tabBarShowLabel: false,
         tabBarActiveTintColor: COLORS.primary,
         tabBarStyle: {
-          height: 72,
-          paddingBottom: 10,
-          paddingTop: 10,
-          borderTopWidth: 1,
-          borderTopColor: '#EEF1F6',
+          position: 'absolute',
+          bottom: Platform.OS === 'web' || Platform.OS === 'ios' ? 12 : 0,
+          left: Platform.OS === 'web' || Platform.OS === 'ios' ? 12 : 0,
+          right: Platform.OS === 'web' || Platform.OS === 'ios' ? 12 : 0,
+          height: 64,
+          borderRadius: Platform.OS === 'web' || Platform.OS === 'ios' ? 24 : 0,
           backgroundColor: '#FFFFFF',
+          borderTopWidth: Platform.OS === 'web' || Platform.OS === 'ios' ? 0 : 1,
+          borderTopColor: '#EEF1F6',
+          paddingBottom: Platform.OS === 'web' || Platform.OS === 'ios' ? 0 : 10,
+          paddingTop: Platform.OS === 'web' || Platform.OS === 'ios' ? 8 : 10,
+          borderWidth: Platform.OS === 'web' || Platform.OS === 'ios' ? 1 : 0,
+          borderColor: '#EEF1F6',
+          ...Platform.select({
+            web: {
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+              elevation: 3,
+            },
+            ios: {
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+              elevation: 3,
+            },
+            default: {}
+          })
         },
       }}
     >
@@ -116,6 +143,9 @@ export default function App() {
           <Stack.Screen name="Rating" component={RatingScreen} />
           <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
           <Stack.Screen name="RaiseIssue" component={RaiseIssueScreen} />
+          <Stack.Screen name="EnterpriseSelect" component={EnterpriseSelectScreen} />
+          <Stack.Screen name="ServiceCompleted" component={ServiceCompletedScreen} />
+          <Stack.Screen name="Invoice" component={InvoiceScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </MobileFrame>
