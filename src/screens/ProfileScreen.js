@@ -2,27 +2,24 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SIZES, SHADOWS, GRADIENTS } from '../constants/theme';
-import { useAuth } from '../context/AuthContext';
+import { getEnterpriseById } from '../constants/enterprises';
+import { globalStore } from '../constants/state';
 
 export default function ProfileScreen({ navigation }) {
-  const { user, userEnterprises, activeEnterpriseId, logout } = useAuth();
+  const user = globalStore.user;
+  const enterprise = getEnterpriseById(globalStore.activeEnterpriseId);
+  const enterpriseCount = globalStore.userEnterpriseIds.length;
 
   const handleSwitchEnterprise = () => {
     navigation.navigate('EnterpriseSelect', { mode: 'switch' });
   };
 
   const handleLogout = () => {
-    logout();
+    globalStore.setUser(null);
     navigation.reset({ index: 0, routes: [{ name: 'Welcome' }] });
   };
 
   const menuGroups = [
-    {
-      title: 'Multi-Tenant',
-      items: [
-        { icon: '🏢', label: 'Switch enterprise', tint: COLORS.primary, action: handleSwitchEnterprise },
-      ],
-    },
     {
       title: 'Account',
       items: [
@@ -55,9 +52,28 @@ export default function ProfileScreen({ navigation }) {
         <LinearGradient colors={GRADIENTS.hero} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.header}>
           <View style={styles.headerGlow} />
           <View style={styles.avatar}><Text style={{ fontSize: 38 }}>👤</Text></View>
-          <Text style={styles.name}>John Doe</Text>
-          <Text style={styles.contact}>+1 (555) 123-4567 · john.doe@email.com</Text>
+          <Text style={styles.name}>{user?.name || 'Guest'}</Text>
+          <Text style={styles.contact}>
+            {user?.phone ? `+1 ${user.phone}` : ''}{user?.email ? ` · ${user.email}` : ''}
+          </Text>
         </LinearGradient>
+
+        {/* Active enterprise */}
+        {enterprise && (
+          <TouchableOpacity style={styles.entCard} activeOpacity={0.85} onPress={handleSwitchEnterprise}>
+            <View style={[styles.entLogo, { backgroundColor: enterprise.color + '15' }]}>
+              <Text style={{ fontSize: 22 }}>{enterprise.logo}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.entLabel}>Active enterprise</Text>
+              <Text style={styles.entName} numberOfLines={1}>{enterprise.name}</Text>
+              <Text style={styles.entMeta}>
+                {enterpriseCount > 1 ? `${enterpriseCount} enterprises linked` : '1 enterprise linked'}
+              </Text>
+            </View>
+            <View style={styles.entSwitchBtn}><Text style={styles.entSwitchText}>Switch</Text></View>
+          </TouchableOpacity>
+        )}
 
         <View style={styles.statsRow}>
           <View style={styles.statItem}><Text style={styles.statValue}>12</Text><Text style={styles.statLabel}>Bookings</Text></View>
@@ -83,9 +99,6 @@ export default function ProfileScreen({ navigation }) {
                 >
                   <View style={[styles.menuIcon, { backgroundColor: item.tint + '18' }]}><Text style={{ fontSize: 17 }}>{item.icon}</Text></View>
                   <Text style={styles.menuLabel}>{item.label}</Text>
-                  {userEnterprises.length > 1 && item.label === 'Switch enterprise' && (
-                    <Text style={styles.badge}>{userEnterprises.length}</Text>
-                  )}
                   <Text style={styles.chevron}>›</Text>
                 </TouchableOpacity>
               ))}
@@ -110,7 +123,14 @@ const styles = StyleSheet.create({
   avatar: { width: 84, height: 84, borderRadius: 28, backgroundColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
   name: { ...FONTS.h1, color: COLORS.white },
   contact: { ...FONTS.caption, color: 'rgba(255,255,255,0.9)', marginTop: 6, textAlign: 'center' },
-  statsRow: { flexDirection: 'row', backgroundColor: COLORS.white, marginHorizontal: SIZES.lg, marginTop: -26, borderRadius: SIZES.radiusLg, paddingVertical: 18, justifyContent: 'space-around', ...SHADOWS.medium },
+  entCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, marginHorizontal: SIZES.lg, marginTop: -26, borderRadius: SIZES.radiusLg, padding: SIZES.md, ...SHADOWS.medium },
+  entLogo: { width: 48, height: 48, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  entLabel: { fontSize: 10, fontWeight: '700', color: COLORS.textLight, textTransform: 'uppercase', letterSpacing: 0.6 },
+  entName: { ...FONTS.bodySm, fontWeight: '800', color: COLORS.text, marginTop: 2 },
+  entMeta: { ...FONTS.caption, color: COLORS.textLight, marginTop: 2, fontSize: 11 },
+  entSwitchBtn: { backgroundColor: COLORS.primaryLight, borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 },
+  entSwitchText: { ...FONTS.caption, color: COLORS.primary, fontWeight: '800' },
+  statsRow: { flexDirection: 'row', backgroundColor: COLORS.white, marginHorizontal: SIZES.lg, marginTop: 14, borderRadius: SIZES.radiusLg, paddingVertical: 18, justifyContent: 'space-around', ...SHADOWS.medium },
   statItem: { alignItems: 'center', flex: 1 },
   statValue: { ...FONTS.h2, color: COLORS.primary },
   statLabel: { ...FONTS.caption, color: COLORS.textLight, marginTop: 4 },

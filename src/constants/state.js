@@ -98,6 +98,13 @@ export const globalStore = {
     this.notify();
   },
 
+  // Home reads this once after auto-login to show "Logged into X — switch?".
+  consumeSwitchPrompt() {
+    if (!this.pendingSwitchPrompt) return false;
+    this.pendingSwitchPrompt = false;
+    return true;
+  },
+
   setUserEnterprises(ids) {
     this.userEnterpriseIds = ids || [];
     this.notify();

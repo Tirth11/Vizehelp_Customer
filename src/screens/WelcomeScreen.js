@@ -3,21 +3,24 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingVi
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SIZES, SHADOWS, GRADIENTS } from '../constants/theme';
 import { PrimaryButton } from '../components/Button';
-import { useAuth } from '../context/AuthContext';
 
 const FEATURES = [
-  { icon: '✅', title: 'Verified Staff', desc: 'Every worker is background-checked & verified' },
-  { icon: '📍', title: 'Live Tracking', desc: 'Track jobs in real time with live GPS' },
-  { icon: '🔒', title: 'Secure Payments', desc: 'Pay safely with multiple payment methods' },
+  { icon: '✅', title: 'Verified Buddies', desc: 'Every helper is background-checked & skill-verified' },
+  { icon: '📍', title: 'Live Tracking', desc: 'Follow your Buddy in real time, right to your door' },
+  { icon: '🔒', title: 'Secure Payments', desc: 'Pay safely with cards, wallets or cash on service' },
+];
+
+// Demo accounts wired to the mock registry in constants/enterprises.js
+const DEMO_ACCOUNTS = [
+  { phone: '5550001111', label: 'Returning · 1 enterprise' },
+  { phone: '5550002222', label: 'Returning · 3 enterprises' },
 ];
 
 export default function WelcomeScreen({ navigation }) {
-  const { setAuthState } = useAuth();
   const [phone, setPhone] = useState('');
   const valid = phone.length === 10;
 
   const handleContinue = () => {
-    setAuthState('otp');
     navigation.navigate('OTP', { phone });
   };
 
@@ -72,6 +75,17 @@ export default function WelcomeScreen({ navigation }) {
             />
             <Text style={styles.helperHint}>We'll text you a 6-digit code to verify your number.</Text>
           </View>
+
+          <View style={styles.demoCard}>
+            <Text style={styles.demoTitle}>💡 Demo accounts</Text>
+            {DEMO_ACCOUNTS.map(acc => (
+              <TouchableOpacity key={acc.phone} style={styles.demoRow} onPress={() => setPhone(acc.phone)} activeOpacity={0.7}>
+                <Text style={styles.demoPhone}>{acc.phone}</Text>
+                <Text style={styles.demoLabel}>{acc.label}</Text>
+              </TouchableOpacity>
+            ))}
+            <Text style={styles.demoNote}>Any other number signs up as a new user.</Text>
+          </View>
         </View>
 
         <Text style={styles.terms}>By continuing, you agree to our Terms of Service & Privacy Policy</Text>
@@ -103,5 +117,11 @@ const styles = StyleSheet.create({
   codeText: { ...FONTS.body, color: COLORS.text, fontWeight: '700' },
   input: { flex: 1, backgroundColor: COLORS.background, borderRadius: SIZES.radius, paddingHorizontal: 16, paddingVertical: 15, ...FONTS.body, borderWidth: 1, borderColor: COLORS.border },
   helperHint: { ...FONTS.caption, color: COLORS.textLight, textAlign: 'center', marginTop: 14 },
+  demoCard: { marginTop: 22, backgroundColor: COLORS.amberLight, borderRadius: SIZES.radius, padding: 14, borderWidth: 1, borderColor: '#FDE68A' },
+  demoTitle: { ...FONTS.caption, color: '#92400E', fontWeight: '800', marginBottom: 8 },
+  demoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#FDE68A' },
+  demoPhone: { ...FONTS.caption, color: '#92400E', fontWeight: '700', fontVariant: ['tabular-nums'] },
+  demoLabel: { ...FONTS.caption, color: '#B45309' },
+  demoNote: { ...FONTS.caption, color: '#B45309', marginTop: 8, fontSize: 11 },
   terms: { ...FONTS.caption, color: COLORS.textLight, textAlign: 'center', marginTop: 28, marginBottom: 28, paddingHorizontal: SIZES.lg },
 });

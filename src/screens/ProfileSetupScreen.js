@@ -2,18 +2,44 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
 import { PrimaryButton } from '../components/Button';
+import { getEnterpriseById } from '../constants/enterprises';
+import { globalStore } from '../constants/state';
 
 export default function ProfileSetupScreen({ navigation, route }) {
   const [form, setForm] = useState({ name: '', email: '', language: 'English' });
   const valid = form.name.trim() && form.email.trim();
+  const enterprise = getEnterpriseById(globalStore.activeEnterpriseId);
+
+  const handleFinish = () => {
+    globalStore.setUser({ ...form, phone: route.params?.phone || '' });
+    navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-          <View style={styles.badge}><Text style={styles.badgeText}>✓ Number verified</Text></View>
+          <View style={styles.badgeRow}>
+            <View style={styles.badge}><Text style={styles.badgeText}>✓ Number verified</Text></View>
+            <View style={styles.stepPill}><Text style={styles.stepPillText}>Step 2 of 2</Text></View>
+          </View>
           <Text style={styles.title}>Set up your profile</Text>
           <Text style={styles.subtitle}>Just a few details so your Buddy knows who to help.</Text>
+
+          {enterprise && (
+            <View style={styles.entCard}>
+              <View style={[styles.entLogo, { backgroundColor: enterprise.color + '15' }]}>
+                <Text style={{ fontSize: 20 }}>{enterprise.logo}</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.entLabel}>Joining</Text>
+                <Text style={styles.entName}>{enterprise.name}</Text>
+              </View>
+              <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Text style={styles.entChange}>Change</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           <TouchableOpacity style={styles.avatarWrap} activeOpacity={0.8}>
             <View style={styles.avatar}><Text style={styles.avatarText}>📷</Text></View>
@@ -45,7 +71,7 @@ export default function ProfileSetupScreen({ navigation, route }) {
         </ScrollView>
 
         <View style={styles.footer}>
-          <PrimaryButton title="Get Started" icon="🚀" disabled={!valid} onPress={() => navigation.replace('MainTabs')} />
+          <PrimaryButton title="Get Started" icon="🚀" disabled={!valid} onPress={handleFinish} />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -55,8 +81,16 @@ export default function ProfileSetupScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.white },
   content: { flex: 1, padding: SIZES.lg, paddingTop: 56 },
-  badge: { alignSelf: 'flex-start', backgroundColor: COLORS.successLight, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, marginBottom: 14 },
+  badgeRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
+  badge: { backgroundColor: COLORS.successLight, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6 },
   badgeText: { ...FONTS.caption, color: COLORS.success, fontWeight: '700' },
+  stepPill: { backgroundColor: COLORS.primaryLight, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 6 },
+  stepPillText: { fontSize: 11, fontWeight: '700', color: COLORS.primary },
+  entCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.background, borderRadius: SIZES.radius, padding: 12, marginTop: 18, borderWidth: 1, borderColor: COLORS.border },
+  entLogo: { width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  entLabel: { fontSize: 10, fontWeight: '700', color: COLORS.textLight, textTransform: 'uppercase', letterSpacing: 0.6 },
+  entName: { ...FONTS.bodySm, fontWeight: '700', color: COLORS.text, marginTop: 1 },
+  entChange: { ...FONTS.caption, color: COLORS.primary, fontWeight: '700' },
   title: { ...FONTS.h1 },
   subtitle: { ...FONTS.bodySm, color: COLORS.textLight, marginTop: 6, lineHeight: 20 },
   avatarWrap: { alignSelf: 'center', marginTop: 24 },

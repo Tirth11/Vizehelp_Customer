@@ -1,18 +1,25 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
-import { SERVICE_CATEGORIES } from '../constants/services';
 import ScreenHeader from '../components/ScreenHeader';
+import { getEnterpriseById, getEnterpriseServices } from '../constants/enterprises';
+import { globalStore } from '../constants/state';
 
 export default function ServiceListScreen({ navigation }) {
   const [query, setQuery] = useState('');
+  const enterprise = getEnterpriseById(globalStore.activeEnterpriseId);
+  const catalog = getEnterpriseServices(globalStore.activeEnterpriseId);
   const list = query
-    ? SERVICE_CATEGORIES.filter(s => s.name.toLowerCase().includes(query.toLowerCase()))
-    : SERVICE_CATEGORIES;
+    ? catalog.filter(s => s.name.toLowerCase().includes(query.toLowerCase()))
+    : catalog;
 
   return (
     <View style={styles.container}>
-      <ScreenHeader title="All services" subtitle="Trusted help available near you" onBack={() => navigation.goBack()} />
+      <ScreenHeader
+        title="All services"
+        subtitle={enterprise ? `Offered by ${enterprise.name}` : 'Trusted help available near you'}
+        onBack={() => navigation.goBack()}
+      />
 
       <View style={styles.searchWrap}>
         <View style={styles.searchBox}>
