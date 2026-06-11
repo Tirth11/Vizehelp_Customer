@@ -1,10 +1,28 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SIZES, SHADOWS, GRADIENTS } from '../constants/theme';
+import { useAuth } from '../context/AuthContext';
 
 export default function ProfileScreen({ navigation }) {
+  const { user, userEnterprises, activeEnterpriseId, logout } = useAuth();
+
+  const handleSwitchEnterprise = () => {
+    navigation.navigate('EnterpriseSelect', { mode: 'switch' });
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigation.reset({ index: 0, routes: [{ name: 'Welcome' }] });
+  };
+
   const menuGroups = [
+    {
+      title: 'Multi-Tenant',
+      items: [
+        { icon: '🏢', label: 'Switch enterprise', tint: COLORS.primary, action: handleSwitchEnterprise },
+      ],
+    },
     {
       title: 'Account',
       items: [
@@ -58,10 +76,16 @@ export default function ProfileScreen({ navigation }) {
                   key={i}
                   style={[styles.menuItem, i === group.items.length - 1 && { borderBottomWidth: 0 }]}
                   activeOpacity={0.7}
-                  onPress={() => item.screen && navigation.navigate(item.screen)}
+                  onPress={() => {
+                    if (item.action) item.action();
+                    else if (item.screen) navigation.navigate(item.screen);
+                  }}
                 >
                   <View style={[styles.menuIcon, { backgroundColor: item.tint + '18' }]}><Text style={{ fontSize: 17 }}>{item.icon}</Text></View>
                   <Text style={styles.menuLabel}>{item.label}</Text>
+                  {userEnterprises.length > 1 && item.label === 'Switch enterprise' && (
+                    <Text style={styles.badge}>{userEnterprises.length}</Text>
+                  )}
                   <Text style={styles.chevron}>›</Text>
                 </TouchableOpacity>
               ))}
@@ -69,7 +93,7 @@ export default function ProfileScreen({ navigation }) {
           </View>
         ))}
 
-        <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.8} onPress={() => navigation.navigate('Welcome')}>
+        <TouchableOpacity style={styles.logoutBtn} activeOpacity={0.8} onPress={handleLogout}>
           <Text style={styles.logoutText}>🚪  Log out</Text>
         </TouchableOpacity>
 
@@ -97,6 +121,7 @@ const styles = StyleSheet.create({
   menuItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 14, paddingHorizontal: SIZES.md, borderBottomWidth: 1, borderBottomColor: COLORS.border },
   menuIcon: { width: 38, height: 38, borderRadius: 12, justifyContent: 'center', alignItems: 'center' },
   menuLabel: { ...FONTS.body, color: COLORS.text, flex: 1, marginLeft: 14, fontWeight: '600' },
+  badge: { backgroundColor: COLORS.primary, color: COLORS.white, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2, ...FONTS.caption, fontWeight: '700', marginRight: 6 },
   chevron: { fontSize: 22, color: COLORS.textLight },
   logoutBtn: { marginHorizontal: SIZES.lg, marginTop: 24, backgroundColor: COLORS.errorLight, borderRadius: SIZES.radiusLg, paddingVertical: 16, alignItems: 'center' },
   logoutText: { ...FONTS.body, color: COLORS.error, fontWeight: '700' },

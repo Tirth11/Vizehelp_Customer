@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, View, Platform, StyleSheet } from 'react-native';
 import { COLORS } from './src/constants/theme';
+import { AuthProvider, useAuth } from './src/context/AuthContext';
 
 import SplashScreen from './src/screens/SplashScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
@@ -108,47 +109,66 @@ const tabStyles = StyleSheet.create({
   label: { fontSize: 10, fontWeight: '600', marginTop: 3 },
 });
 
-export default function App() {
+function RootNavigator() {
+  const { user, authState } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setTimeout(() => setIsLoading(false), 2500);
   }, []);
 
-  if (isLoading) return <MobileFrame><SplashScreen /></MobileFrame>;
+  if (isLoading) return <SplashScreen />;
 
   return (
-    <MobileFrame>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen name="OTP" component={OTPScreen} />
-          <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
-          <Stack.Screen name="MainTabs" component={MainTabs} />
-          <Stack.Screen name="Location" component={LocationScreen} />
-          <Stack.Screen name="ServiceList" component={ServiceListScreen} />
-          <Stack.Screen name="ServiceDetail" component={ServiceDetailScreen} />
-          <Stack.Screen name="ServiceInput" component={ServiceInputScreen} />
-          <Stack.Screen name="Address" component={AddressScreen} />
-          <Stack.Screen name="DateTime" component={DateTimeScreen} />
-          <Stack.Screen name="Instructions" component={InstructionsScreen} />
-          <Stack.Screen name="BookingSummary" component={BookingSummaryScreen} />
-          <Stack.Screen name="Payment" component={PaymentScreen} />
-          <Stack.Screen name="BookingConfirmation" component={BookingConfirmationScreen} />
-          <Stack.Screen name="BuddyAssigned" component={BuddyAssignedScreen} />
-          <Stack.Screen name="LiveTracking" component={LiveTrackingScreen} />
-          <Stack.Screen name="BuddyArrival" component={BuddyArrivalScreen} />
-          <Stack.Screen name="ServiceProgress" component={ServiceProgressScreen} />
-          <Stack.Screen name="ServiceCompletion" component={ServiceCompletionScreen} />
-          <Stack.Screen name="Rating" component={RatingScreen} />
-          <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
-          <Stack.Screen name="RaiseIssue" component={RaiseIssueScreen} />
-          <Stack.Screen name="EnterpriseSelect" component={EnterpriseSelectScreen} />
-          <Stack.Screen name="ServiceCompleted" component={ServiceCompletedScreen} />
-          <Stack.Screen name="Invoice" component={InvoiceScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </MobileFrame>
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
+        {!user ? (
+          // Auth Stack
+          <>
+            <Stack.Screen name="Welcome" component={WelcomeScreen} />
+            <Stack.Screen name="OTP" component={OTPScreen} />
+            <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+            <Stack.Screen name="EnterpriseSelect" component={EnterpriseSelectScreen} />
+          </>
+        ) : (
+          // App Stack
+          <>
+            <Stack.Screen name="MainTabs" component={MainTabs} />
+            <Stack.Screen name="Location" component={LocationScreen} />
+            <Stack.Screen name="ServiceList" component={ServiceListScreen} />
+            <Stack.Screen name="ServiceDetail" component={ServiceDetailScreen} />
+            <Stack.Screen name="ServiceInput" component={ServiceInputScreen} />
+            <Stack.Screen name="Address" component={AddressScreen} />
+            <Stack.Screen name="DateTime" component={DateTimeScreen} />
+            <Stack.Screen name="Instructions" component={InstructionsScreen} />
+            <Stack.Screen name="BookingSummary" component={BookingSummaryScreen} />
+            <Stack.Screen name="Payment" component={PaymentScreen} />
+            <Stack.Screen name="BookingConfirmation" component={BookingConfirmationScreen} />
+            <Stack.Screen name="BuddyAssigned" component={BuddyAssignedScreen} />
+            <Stack.Screen name="LiveTracking" component={LiveTrackingScreen} />
+            <Stack.Screen name="BuddyArrival" component={BuddyArrivalScreen} />
+            <Stack.Screen name="ServiceProgress" component={ServiceProgressScreen} />
+            <Stack.Screen name="ServiceCompletion" component={ServiceCompletionScreen} />
+            <Stack.Screen name="Rating" component={RatingScreen} />
+            <Stack.Screen name="BookingDetail" component={BookingDetailScreen} />
+            <Stack.Screen name="RaiseIssue" component={RaiseIssueScreen} />
+            <Stack.Screen name="EnterpriseSelect" component={EnterpriseSelectScreen} options={{ presentation: 'modal' }} />
+            <Stack.Screen name="ServiceCompleted" component={ServiceCompletedScreen} />
+            <Stack.Screen name="Invoice" component={InvoiceScreen} />
+          </>
+        )}
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <MobileFrame>
+        <RootNavigator />
+      </MobileFrame>
+    </AuthProvider>
   );
 }
 

@@ -3,16 +3,23 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, KeyboardAvoidingVi
 import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SIZES, SHADOWS, GRADIENTS } from '../constants/theme';
 import { PrimaryButton } from '../components/Button';
+import { useAuth } from '../context/AuthContext';
 
 const FEATURES = [
-  { icon: '✅', title: 'Verified Buddies', desc: 'Every helper is background-checked & skill-verified' },
-  { icon: '📍', title: 'Live Tracking', desc: 'Follow your Buddy in real time, right to your door' },
-  { icon: '🔒', title: 'Secure Payments', desc: 'Pay safely with cards, wallets or cash on service' },
+  { icon: '✅', title: 'Verified Staff', desc: 'Every worker is background-checked & verified' },
+  { icon: '📍', title: 'Live Tracking', desc: 'Track jobs in real time with live GPS' },
+  { icon: '🔒', title: 'Secure Payments', desc: 'Pay safely with multiple payment methods' },
 ];
 
 export default function WelcomeScreen({ navigation }) {
+  const { setAuthState } = useAuth();
   const [phone, setPhone] = useState('');
-  const valid = phone.length >= 10;
+  const valid = phone.length === 10;
+
+  const handleContinue = () => {
+    setAuthState('otp');
+    navigation.navigate('OTP', { phone });
+  };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.container}>
@@ -57,10 +64,10 @@ export default function WelcomeScreen({ navigation }) {
             </View>
 
             <PrimaryButton
-              title="Continue"
+              title="Get OTP"
               icon="→"
               disabled={!valid}
-              onPress={() => navigation.navigate('OTP', { phone })}
+              onPress={handleContinue}
               style={{ marginTop: 18 }}
             />
             <Text style={styles.helperHint}>We'll text you a 6-digit code to verify your number.</Text>

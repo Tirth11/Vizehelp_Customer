@@ -1,12 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { COLORS, FONTS, SIZES } from '../constants/theme';
 import { PrimaryButton } from '../components/Button';
+import { useAuth } from '../context/AuthContext';
 
 export default function OTPScreen({ navigation, route }) {
   const { phone } = route.params;
+  const { verifyOTP, loading } = useAuth();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [seconds, setSeconds] = useState(30);
+  const [error, setError] = useState('');
   const inputs = useRef([]);
 
   useEffect(() => {
@@ -31,6 +34,36 @@ export default function OTPScreen({ navigation, route }) {
 
   const filled = otp.every(d => d !== '');
 
+  const handleVerify = async () => {
+    setError('');
+    const otpCode = otp.join('');
+    const result = await verifyOTP(phone, otpCode);
+
+    if (result.success) {
+      if (result.isNewUser) {
+        // New user: go to enterprise selection
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'EnterpriseSelect', params: { phone } }]
+        });
+      } else if (result.enterprises.length === 1) {
+        // Single enterprise: skip selection, go straight to home
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'MainTabs' }]
+        });
+      } else {
+        // Multiple enterprises: show selection screen
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'EnterpriseSelect', params: { phone } }]
+        });
+      }
+    } else {
+      setError(result.error || 'Verification failed. Please try again.');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.content}>
@@ -42,22 +75,29 @@ export default function OTPScreen({ navigation, route }) {
         <Text style={styles.title}>Verify your number</Text>
         <Text style={styles.subtitle}>Enter the 6-digit code sent to{'\n'}<Text style={styles.phone}>+1 {phone}</Text></Text>
 
+        {error ? <View style={styles.errorBox}><Text style={styles.errorText}>{error}</Text></View> : null}
+
         <View style={styles.otpRow}>
           {otp.map((digit, i) => (
             <TextInput
               key={i}
               ref={ref => (inputs.current[i] = ref)}
-              style={[styles.otpInput, digit && styles.otpFilled]}
+              style={[styles.otpInput, digit && styles.otpFilled, error && styles.otpError]}
               keyboardType="number-pad"
               maxLength={1}
               value={digit}
               onChangeText={t => handleChange(t, i)}
               onKeyPress={e => handleKeyPress(e, i)}
+              editable={!loading}
             />
           ))}
         </View>
 
-        <PrimaryButton title="Verify & Continue" disabled={!filled} onPress={() => navigation.navigate('ProfileSetup', { phone })} />
+        <PrimaryButton
+          title={loading ? "Verifying..." : "Verify & Continue"}
+          disabled={!filled || loading}
+          onPress={handleVerify}
+        />
 
         <View style={styles.resendRow}>
           {seconds > 0 ? (
@@ -70,7 +110,7 @@ export default function OTPScreen({ navigation, route }) {
         </View>
 
         <View style={styles.demoNote}>
-          <Text style={styles.demoText}>💡 Demo mode — enter any 6 digits to continue</Text>
+          <Text style={styles.demoText}>💡 Demo: Enter any 6 digits to continue</Text>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -86,9 +126,12 @@ const styles = StyleSheet.create({
   title: { ...FONTS.h1 },
   subtitle: { ...FONTS.body, color: COLORS.textLight, marginTop: 10, lineHeight: 24 },
   phone: { color: COLORS.text, fontWeight: '700' },
+  errorBox: { backgroundColor: '#FEE2E2', borderRadius: SIZES.radius, padding: 12, marginTop: 16, marginBottom: 16, borderLeftWidth: 4, borderLeftColor: '#DC2626' },
+  errorText: { ...FONTS.bodySm, color: '#B91C1C', fontWeight: '600' },
   otpRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 28, marginBottom: 28 },
   otpInput: { width: 48, height: 58, borderRadius: SIZES.radius, borderWidth: 1.5, borderColor: COLORS.border, textAlign: 'center', fontSize: 22, fontWeight: '700', color: COLORS.text, backgroundColor: COLORS.background },
   otpFilled: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight, color: COLORS.primary },
+  otpError: { borderColor: '#DC2626', backgroundColor: '#FEE2E2' },
   resendRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 24, gap: 10 },
   resendMuted: { ...FONTS.bodySm, color: COLORS.textLight },
   link: { ...FONTS.bodySm, color: COLORS.primary, fontWeight: '700' },

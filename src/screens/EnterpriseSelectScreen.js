@@ -1,190 +1,159 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { COLORS, FONTS, SIZES, SHADOWS } from '../constants/theme';
-import { ENTERPRISES, getEnterpriseById } from '../constants/enterprises';
-import { globalStore } from '../constants/state';
+import { useAuth } from '../context/AuthContext';
+import { PrimaryButton } from '../components/Button';
 
-// Modes:
-//  'onboarding' — new user just verified OTP; must pick an enterprise before profile setup
-//  'select'     — returning multi-enterprise user; pick which enterprise to enter
-//  'switch'     — logged-in user switching from Profile/Home; can also join a new enterprise
+const ENTERPRISE_OPTIONS = [
+  { id: 'ent_001', name: 'Global Spa', logo: '💆', desc: 'Professional spa & wellness' },
+  { id: 'ent_002', name: 'City Cleaning', logo: '🧹', desc: 'Expert cleaning services' },
+  { id: 'ent_003', name: 'Smart Laundry', logo: '👕', desc: 'Premium laundry care' },
+  { id: 'ent_004', name: 'Fresh Market', logo: '🛒', desc: 'Grocery & delivery' },
+];
+
 export default function EnterpriseSelectScreen({ navigation, route }) {
-  const { mode = 'switch', phone, pendingUser, lastUsedId } = route.params || {};
-  const [selectedId, setSelectedId] = useState(
-    mode === 'switch' ? globalStore.activeEnterpriseId : (lastUsedId || null)
-  );
+  const { phone, mode = 'new' } = route.params || {};
+  const { userEnterprises, activeEnterpriseId, selectEnterprise, switchEnterprise, loading } = useAuth();
+  const [selectedId, setSelectedId] = useState(activeEnterpriseId || null);
 
-  const userEntIds = mode === 'onboarding' ? [] : globalStore.userEnterpriseIds;
-  const myEnterprises = ENTERPRISES.filter(e => userEntIds.includes(e.id));
-  const otherEnterprises = ENTERPRISES.filter(e => !userEntIds.includes(e.id));
+  const isNewUser = mode === 'new' || userEnterprises.length === 0;
+  const availableEnterprises = isNewUser ? ENTERPRISE_OPTIONS : userEnterprises;
 
-  const heading = {
-    onboarding: 'Choose your enterprise',
-    select: 'Welcome back!',
-    switch: 'Switch enterprise',
-  }[mode];
-
-  const subheading = {
-    onboarding: 'Select the enterprise you want to book services with. You can join more later.',
-    select: 'Your account is linked to multiple enterprises. Pick one to continue.',
-    switch: 'Services shown in the app come from your active enterprise.',
-  }[mode];
-
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!selectedId) {
-      Alert.alert('Select an Enterprise', 'Please choose an enterprise to continue.');
+      Alert.alert('Select Enterprise', 'Please choose an enterprise to continue.');
       return;
     }
 
-    if (mode === 'onboarding') {
-      globalStore.setUserEnterprises([selectedId]);
-      globalStore.setActiveEnterprise(selectedId);
-      navigation.navigate('ProfileSetup', { phone });
-      return;
-    }
-
-    if (mode === 'select') {
-      // Returning multi-enterprise user: commit the session only on confirm.
-      if (pendingUser) globalStore.setUser(pendingUser);
-      globalStore.setActiveEnterprise(selectedId);
+    if (isNewUser) {
+      const result = await selectEnterprise(selectedId);
+      if (result.success) {
+        navigation.navigate('ProfileSetup', { phone });
+      }
+    } else {
+      // Existing user switching enterprises
+      switchEnterprise(selectedId);
       navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
-      return;
     }
-
-    // switch mode
-    if (selectedId === globalStore.activeEnterpriseId) {
-      navigation.goBack();
-      return;
-    }
-    globalStore.addUserEnterprise(selectedId);
-    globalStore.setActiveEnterprise(selectedId);
-    const ent = getEnterpriseById(selectedId);
-    // Reset to MainTabs so Home remounts with the new enterprise's catalog and
-    // any in-progress booking draft screens are discarded.
-    navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
-    setTimeout(() => {
-      Alert.alert('Enterprise Switched', `You are now browsing services from ${ent?.name}.`);
-    }, 350);
   };
 
-  const renderCard = (ent, { isCurrent, isLastUsed }) => {
+  const renderCard = (ent, isCurrent) => {
     const selected = selectedId === ent.id;
     return (
       <TouchableOpacity
         key={ent.id}
-        style={[styles.card, selected && styles.cardSelected, selected && { borderColor: ent.color }]}
+        style={[styles.card, selected && styles.cardSelected]}
         onPress={() => setSelectedId(ent.id)}
         activeOpacity={0.8}
       >
-        <View style={[styles.logoWrap, { backgroundColor: ent.color + '15' }]}>
-          <Text style={styles.logoEmoji}>{ent.logo}</Text>
+        <View style={[styles.logoWrap, selected && styles.logoWrapActive]}>
+          <Text style={styles.logo}>{ent.logo}</Text>
         </View>
         <View style={styles.cardBody}>
           <View style={styles.cardTitleRow}>
-            <Text style={styles.cardName} numberOfLines={1}>{ent.name}</Text>
-            {isCurrent && <View style={styles.currentBadge}><Text style={styles.currentBadgeText}>Current</Text></View>}
-            {!isCurrent && isLastUsed && <View style={styles.lastBadge}><Text style={styles.lastBadgeText}>Last used</Text></View>}
+            <Text style={styles.cardName}>{ent.name}</Text>
+            {isCurrent && <View style={styles.badgeCurrent}><Text style={styles.badgeText}>Current</Text></View>}
           </View>
-          <Text style={styles.cardTagline} numberOfLines={1}>{ent.tagline}</Text>
-          <View style={styles.cardMetaRow}>
-            <Text style={styles.cardMeta}>📍 {ent.location}</Text>
-            <Text style={styles.cardMetaDot}>•</Text>
-            <Text style={styles.cardMeta}>{ent.serviceIds.length} services</Text>
-          </View>
+          <Text style={styles.cardDesc}>{ent.desc}</Text>
         </View>
-        <View style={[styles.radio, selected && { borderColor: ent.color }]}>
-          {selected && <View style={[styles.radioDot, { backgroundColor: ent.color }]} />}
-        </View>
+        {selected && <View style={styles.checkmark}><Text style={styles.checkmarkText}>✓</Text></View>}
       </TouchableOpacity>
     );
   };
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.topBar}>
-        {mode !== 'select' && (
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <Text style={styles.backText}>←</Text>
-          </TouchableOpacity>
-        )}
-        {mode === 'onboarding' && (
-          <View style={styles.stepPill}><Text style={styles.stepPillText}>Step 1 of 2</Text></View>
-        )}
-      </View>
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        <View style={styles.headerIcon}><Text style={{ fontSize: 30 }}>🏢</Text></View>
-        <Text style={styles.title}>{heading}</Text>
-        <Text style={styles.subtitle}>{subheading}</Text>
-
-        {myEnterprises.length > 0 && (
-          <>
-            <Text style={styles.sectionLabel}>Your enterprises</Text>
-            {myEnterprises.map(ent => renderCard(ent, {
-              isCurrent: mode === 'switch' && ent.id === globalStore.activeEnterpriseId,
-              isLastUsed: ent.id === lastUsedId,
-            }))}
-          </>
-        )}
-
-        {otherEnterprises.length > 0 && (
-          <>
-            <Text style={styles.sectionLabel}>
-              {mode === 'onboarding' ? 'Available enterprises' : 'Discover more'}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        {/* Header */}
+        <LinearGradient
+          colors={['#4F46E5', '#7C3AED']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
+        >
+          <View style={styles.headerGlow} />
+          <View style={styles.headerContent}>
+            {isNewUser && <Text style={styles.step}>Step 1 of 2</Text>}
+            <Text style={styles.title}>
+              {isNewUser ? 'Which service would you like?' : 'Switch enterprise'}
             </Text>
-            {otherEnterprises.map(ent => renderCard(ent, { isCurrent: false, isLastUsed: false }))}
-          </>
+            <Text style={styles.subtitle}>
+              {isNewUser
+                ? 'Select your service provider to start booking'
+                : 'Choose another enterprise to view its services'}
+            </Text>
+          </View>
+        </LinearGradient>
+
+        {/* Enterprise Cards */}
+        <View style={styles.cardsContainer}>
+          {availableEnterprises.map((ent) =>
+            renderCard(ent, !isNewUser && ent.id === activeEnterpriseId)
+          )}
+        </View>
+
+        {/* Info Box */}
+        {isNewUser && (
+          <View style={styles.infoBox}>
+            <Text style={styles.infoIcon}>ℹ️</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.infoTitle}>New user?</Text>
+              <Text style={styles.infoText}>You'll complete your profile in the next step.</Text>
+            </View>
+          </View>
         )}
 
-        <View style={{ height: 120 }} />
+        <View style={{ height: 80 }} />
       </ScrollView>
 
+      {/* Footer Button */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={[styles.confirmBtn, !selectedId && styles.confirmBtnDisabled]}
+        {loading && <ActivityIndicator size="small" color={COLORS.primary} style={styles.spinner} />}
+        <PrimaryButton
+          title={loading ? 'Setting up...' : (isNewUser ? 'Continue' : 'Switch Enterprise')}
+          disabled={!selectedId || loading}
           onPress={handleConfirm}
-          disabled={!selectedId}
-        >
-          <Text style={styles.confirmText}>
-            {mode === 'onboarding' ? 'Continue' : mode === 'select' ? 'Enter Enterprise' : 'Switch Enterprise'}
-          </Text>
-        </TouchableOpacity>
+        />
+        {!isNewUser && (
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.cancelBtn}>
+            <Text style={styles.cancelText}>← Cancel</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.background },
-  topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: SIZES.lg, paddingTop: 50, minHeight: 60 },
-  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: COLORS.white, justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: COLORS.border },
-  backText: { fontSize: 18, color: COLORS.text },
-  stepPill: { backgroundColor: COLORS.primaryLight, borderRadius: 14, paddingHorizontal: 12, paddingVertical: 6 },
-  stepPillText: { fontSize: 11, fontWeight: '700', color: COLORS.primary },
-  scrollContent: { paddingHorizontal: SIZES.lg, paddingTop: 12 },
-  headerIcon: { width: 64, height: 64, borderRadius: 20, backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
-  title: { fontSize: 26, fontWeight: '800', color: COLORS.text, letterSpacing: -0.5 },
-  subtitle: { ...FONTS.bodySm, color: COLORS.textLight, marginTop: 8, lineHeight: 21, marginBottom: 8 },
-  sectionLabel: { fontSize: 11, fontWeight: '700', color: COLORS.textLight, textTransform: 'uppercase', letterSpacing: 1, marginTop: 24, marginBottom: 10 },
-  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, borderRadius: SIZES.radiusLg, padding: SIZES.md, marginBottom: 10, borderWidth: 1.5, borderColor: COLORS.border, ...SHADOWS.small },
-  cardSelected: { ...SHADOWS.medium, backgroundColor: COLORS.white },
-  logoWrap: { width: 52, height: 52, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  logoEmoji: { fontSize: 26 },
-  cardBody: { flex: 1, marginLeft: 12, marginRight: 8 },
-  cardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  cardName: { fontSize: 15, fontWeight: '700', color: COLORS.text, flexShrink: 1 },
-  currentBadge: { backgroundColor: COLORS.successLight, borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
-  currentBadgeText: { fontSize: 9, fontWeight: '700', color: COLORS.success },
-  lastBadge: { backgroundColor: COLORS.primaryLight, borderRadius: 6, paddingHorizontal: 7, paddingVertical: 2 },
-  lastBadgeText: { fontSize: 9, fontWeight: '700', color: COLORS.primary },
-  cardTagline: { fontSize: 12, color: COLORS.textLight, marginTop: 3 },
-  cardMetaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 5 },
-  cardMeta: { fontSize: 11, color: COLORS.textLight, fontWeight: '500' },
-  cardMetaDot: { fontSize: 11, color: COLORS.textDisabled, marginHorizontal: 6 },
-  radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: COLORS.border, justifyContent: 'center', alignItems: 'center' },
-  radioDot: { width: 11, height: 11, borderRadius: 6 },
-  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: SIZES.lg, paddingBottom: 28, backgroundColor: COLORS.background, borderTopWidth: 1, borderTopColor: COLORS.border },
-  confirmBtn: { backgroundColor: COLORS.primary, borderRadius: SIZES.radiusLg, paddingVertical: 16, alignItems: 'center', ...SHADOWS.medium },
-  confirmBtnDisabled: { backgroundColor: COLORS.textDisabled },
-  confirmText: { ...FONTS.button, color: COLORS.white },
+  container: { flex: 1, backgroundColor: COLORS.white },
+  content: { paddingBottom: 40 },
+  header: { paddingTop: 28, paddingBottom: 40, paddingHorizontal: SIZES.lg, borderBottomLeftRadius: 28, borderBottomRightRadius: 28, overflow: 'hidden', position: 'relative' },
+  headerGlow: { position: 'absolute', top: -40, right: -60, width: 200, height: 200, borderRadius: 100, backgroundColor: 'rgba(255,255,255,0.15)' },
+  headerContent: { position: 'relative', zIndex: 1 },
+  step: { ...FONTS.caption, color: 'rgba(255,255,255,0.8)', fontWeight: '600', marginBottom: 6 },
+  title: { ...FONTS.h2, color: COLORS.white, marginBottom: 8, fontWeight: '800', letterSpacing: -0.5 },
+  subtitle: { ...FONTS.body, color: 'rgba(255,255,255,0.9)', lineHeight: 24 },
+  cardsContainer: { paddingHorizontal: SIZES.lg, marginTop: 28, gap: 12 },
+  card: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.white, borderRadius: 18, borderWidth: 2, borderColor: COLORS.border, paddingVertical: 18, paddingHorizontal: 14 },
+  cardSelected: { borderColor: COLORS.primary, backgroundColor: COLORS.primaryLight, borderWidth: 2.5 },
+  logoWrap: { width: 60, height: 60, borderRadius: 16, backgroundColor: COLORS.background, justifyContent: 'center', alignItems: 'center', marginRight: 14 },
+  logoWrapActive: { backgroundColor: COLORS.primary },
+  logo: { fontSize: 28 },
+  cardBody: { flex: 1 },
+  cardTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  cardName: { ...FONTS.bodySm, fontWeight: '700', color: COLORS.text },
+  badgeCurrent: { backgroundColor: COLORS.successLight, borderRadius: 6, paddingHorizontal: 8, paddingVertical: 2 },
+  badgeText: { fontSize: 9, fontWeight: '700', color: COLORS.success },
+  cardDesc: { ...FONTS.caption, color: COLORS.textLight },
+  checkmark: { width: 28, height: 28, borderRadius: 14, backgroundColor: COLORS.primary, justifyContent: 'center', alignItems: 'center' },
+  checkmarkText: { color: COLORS.white, fontSize: 16, fontWeight: '700' },
+  infoBox: { marginHorizontal: SIZES.lg, marginTop: 24, backgroundColor: '#EEF2FF', borderRadius: 14, padding: 14, flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  infoIcon: { fontSize: 20 },
+  infoTitle: { ...FONTS.bodySm, fontWeight: '700', color: COLORS.primary, marginBottom: 2 },
+  infoText: { ...FONTS.caption, color: COLORS.primary, lineHeight: 18 },
+  footer: { paddingHorizontal: SIZES.lg, paddingVertical: 16, backgroundColor: COLORS.white, borderTopWidth: 1, borderTopColor: COLORS.border },
+  spinner: { marginBottom: 12 },
+  cancelBtn: { marginTop: 12, alignItems: 'center', paddingVertical: 10 },
+  cancelText: { ...FONTS.bodySm, color: COLORS.primary, fontWeight: '600' },
 });
